@@ -8,9 +8,14 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import tailwindStyleUrl from "./styles/tailwind.css";
+import faviconUrl from "./assets/favicon.svg";
+import SideNav from "./components/SideNav";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+  { rel: "stylesheet", href: tailwindStyleUrl },
+  { rel: "icon", href: faviconUrl },
 ];
 
 export default function App() {
@@ -22,7 +27,8 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="font-spartan bg-white-1000 dark:bg-blue-2000 transition-colors duration-700 ease-in-out">
+        <SideNav />
         <Outlet />
         <ScrollRestoration />
         <Scripts />
