@@ -27,7 +27,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="font-spartan bg-white-1000 dark:bg-blue-2000 transition-colors duration-700 ease-in-out">
+      <body>
         <SideNav />
         <Outlet />
         <ScrollRestoration />
