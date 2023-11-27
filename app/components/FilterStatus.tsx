@@ -57,7 +57,7 @@ const FilterStatus = () => {
             initial="initial"
             animate={toggleStatusMenu ? "animate" : "initial"}
             exit="exit"
-            className="absolute top-10 left-[-25%]"
+            className="absolute top-10 left-[-25%] shadow-md rounded-lg"
           >
             <div className="max-w-[12rem] w-40 px-6 py-4 bg-white dark:bg-blue-1050 rounded-lg">
               <div className="flex flex-col gap-2">{renderCheckbox()}</div>

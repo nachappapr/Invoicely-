@@ -22,7 +22,7 @@
     @apply text-[0.75rem] font-bold text-black-1000 dark:text-white-1000;
   }
   .text-body-one {
-    @apply text-[0.75rem] font-semibold text-black-1000 dark:text-white-1000;
+    @apply text-[0.75rem] font-[500] text-black-1000 dark:text-white-1000;
   }
   .text-body-two {
     @apply text-[0.75rem] font-normal text-black-1000 dark:text-white-1000;

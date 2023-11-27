@@ -1,6 +1,13 @@
-import type { MetaFunction } from "@remix-run/node";
-import { IconPlus } from "~/assets/icons";
-import FilterStatus from "~/components/FilterStatus";
+import { json, type MetaFunction } from "@remix-run/node";
+import {
+  isRouteErrorResponse,
+  useLoaderData,
+  useRouteError,
+} from "@remix-run/react";
+import InvoiceItems from "~/components/invoice/InvoiceItems";
+import NoInvoice from "~/components/invoice/NoInvoice";
+import InvoiceDashboardContainer from "~/components/InvoiceDashboardContainer";
+import { INVOICE_LIST_ITEMS } from "~/db";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,34 +20,37 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader = () => {
+  const invoices = INVOICE_LIST_ITEMS;
+  return json({ invoices }, { status: 200 });
+};
+
 const Invoices = () => {
+  const { invoices } = useLoaderData<typeof loader>();
+
   return (
-    <div className="max-w-[70rem] mx-auto w-[95%] mt-8 md:mt-14 lg:w-full lg:mt-20">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="primary-heading ">Invoices</h1>
-          <span className="hidden lg:inline-block text-body-two !text-indigo-2000 dark:!text-indigo-1000">
-            There are 7 total invoices
-          </span>
-          <span className="lg:hidden text-body-two !text-indigo-2000 dark:!text-indigo-1000">
-            7 invoices
-          </span>
-        </div>
-        <div className="flex items-center gap-4 lg:gap-10">
-          <FilterStatus />
-          <button className="flex items-center justify-between gap-1  bg-purple-1000 pl-2 pr-4 h-12 rounded-3xl lg:gap-2 hover:bg-purple-1050 generic-transition">
-            <div className="h-8 w-8 bg-white flex items-center justify-center rounded-full">
-              <IconPlus />
-            </div>
-            <div className="tertiary-heading-normal capitalize !text-white">
-              <span>new </span>
-              <span className="hidden lg:inline-block">invoice</span>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
+    <InvoiceDashboardContainer>
+      {invoices?.length === 0 && <NoInvoice />}
+      <InvoiceItems invoices={invoices} />
+    </InvoiceDashboardContainer>
   );
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  let errorTitle: string;
+
+  if (isRouteErrorResponse(error)) {
+    errorTitle = error.status === 404 ? "Not Found" : "Something went wrong";
+  } else {
+    errorTitle = "Opps! Something went wrong";
+  }
+
+  return (
+    <InvoiceDashboardContainer>
+      <NoInvoice title={errorTitle} description="please check in sometime ✈️" />
+    </InvoiceDashboardContainer>
+  );
+}
 
 export default Invoices;

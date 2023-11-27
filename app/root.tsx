@@ -11,6 +11,7 @@ import {
 import tailwindStyleUrl from "./styles/tailwind.css";
 import faviconUrl from "./assets/favicon.svg";
 import SideNav from "./components/SideNav";
+import LayoutContainer from "./components/ui/LayoutContainer";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -18,7 +19,7 @@ export const links: LinksFunction = () => [
   { rel: "icon", href: faviconUrl },
 ];
 
-export default function App() {
+export const Document = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <head>
@@ -28,12 +29,28 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <SideNav />
+        {children}
         <Outlet />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
       </body>
     </html>
+  );
+};
+
+export default function App() {
+  return (
+    <Document>
+      <SideNav />
+    </Document>
+  );
+}
+
+export function ErrorBoundary() {
+  return (
+    <Document>
+      <LayoutContainer>Oops! Something went wrong</LayoutContainer>
+    </Document>
   );
 }
