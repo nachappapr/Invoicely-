@@ -1,12 +1,13 @@
 import { json, type MetaFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
+  Outlet,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
+import InvoiceDashboardContainer from "~/components/containers/InvoiceDashboardContainer";
 import InvoiceItems from "~/components/invoice/InvoiceItems";
 import NoInvoice from "~/components/invoice/NoInvoice";
-import InvoiceDashboardContainer from "~/components/InvoiceDashboardContainer";
 import { INVOICE_LIST_ITEMS } from "~/db";
 
 export const meta: MetaFunction = () => {
@@ -32,6 +33,7 @@ const Invoices = () => {
     <InvoiceDashboardContainer>
       {invoices?.length === 0 && <NoInvoice />}
       <InvoiceItems invoices={invoices} />
+      <Outlet />
     </InvoiceDashboardContainer>
   );
 };

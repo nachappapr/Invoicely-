@@ -1,7 +1,8 @@
+import { Link } from "@remix-run/react";
 import React from "react";
 import { IconPlus } from "~/assets/icons";
-import FilterStatus from "./FilterStatus";
-import LayoutContainer from "./ui/LayoutContainer";
+import FilterStatus from "../FilterStatus";
+import LayoutContainer from "../ui/LayoutContainer";
 
 const InvoiceDashboardContainer = ({
   children,
@@ -22,15 +23,17 @@ const InvoiceDashboardContainer = ({
         </div>
         <div className="flex items-center gap-4 lg:gap-10">
           <FilterStatus />
-          <button className="flex items-center justify-between gap-1  bg-purple-1000 pl-2 pr-4 h-12 rounded-3xl lg:gap-2 hover:bg-purple-1050 generic-transition">
-            <div className="h-8 w-8 bg-white flex items-center justify-center rounded-full">
-              <IconPlus />
-            </div>
-            <div className="tertiary-heading-normal capitalize !text-white">
-              <span>new </span>
-              <span className="hidden lg:inline-block">invoice</span>
-            </div>
-          </button>
+          <Link to="./create-invoice">
+            <button className="flex items-center justify-between gap-1  bg-purple-1000 pl-2 pr-4 h-12 rounded-3xl lg:gap-2 hover:bg-purple-1050 generic-transition">
+              <div className="h-8 w-8 bg-white flex items-center justify-center rounded-full">
+                <IconPlus />
+              </div>
+              <div className="tertiary-heading-normal capitalize !text-white">
+                <span>new </span>
+                <span className="hidden lg:inline-block">invoice</span>
+              </div>
+            </button>
+          </Link>
         </div>
       </div>
       {children}

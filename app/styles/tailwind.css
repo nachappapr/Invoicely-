@@ -6,6 +6,20 @@
   body {
     @apply font-spartan bg-white-1000 dark:bg-blue-2000 transition-all duration-200 ease-in-out;
   }
+  /* Works on Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: theme(colors.purple-1000);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: theme(colors.indigo-1000);
+    border-radius: 20px;
+    border: 3px solid theme(colors.indigo-1000);
+  }
 }
 
 @layer utilities {
@@ -28,7 +42,19 @@
     @apply text-[0.75rem] font-normal text-black-1000 dark:text-white-1000;
   }
 
+  .saveButton {
+    @apply capitalize py-4 px-6 tertiary-heading-normal bg-purple-1000 !text-white-1000 rounded-full hover:bg-purple-1050 generic-transition;
+  }
+
+  .discardButton {
+    @apply capitalize py-4 px-6 tertiary-heading-normal bg-gray-1050 !text-indigo-2000 dark:!text-indigo-1000 rounded-full hover:bg-black-1000 hover:dark:bg-blue-1000 generic-transition;
+  }
+
   .generic-transition {
     @apply transition-all duration-200 ease-in-out;
+  }
+
+  .error-text {
+    @apply text-[0.625rem] text-red-1000 font-semibold;
   }
 }

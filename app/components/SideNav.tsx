@@ -16,7 +16,7 @@ const SideNav = () => {
   };
 
   return (
-    <div className="flex justify-between items-center w-full h-16 md:h-20 bg-blue-1000 lg:flex-col lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-24 lg:rounded-r-3xl">
+    <div className="flex justify-between items-center w-full h-16 md:h-20 bg-blue-1000 lg:flex-col lg:fixed lg:top-0 lg:left-0 lg:h-full lg:w-24 lg:rounded-r-3xl relative z-50">
       <div className="flex-1">
         <SvgLogo className="w-24 h-16 md:h-20 ml-[-20px] md:ml-[-10px] lg:ml-0 lg:h-auto" />
       </div>

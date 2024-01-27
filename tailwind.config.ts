@@ -25,6 +25,8 @@ export default {
         "gray-1050": "#373B53",
         "green-1000": "#33D69F",
         "orange-1000": "#FF8F00",
+        "gray-2000": "#777F98",
+        "ghost-white": "#F9FAFE",
       },
     },
   },
