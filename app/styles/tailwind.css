@@ -57,4 +57,20 @@
   .error-text {
     @apply text-[0.625rem] text-red-1000 font-semibold;
   }
+
+  .text-light {
+    @apply text-indigo-1050 dark:text-indigo-1000;
+  }
+
+  .button-primary {
+    @apply flex items-center justify-between bg-purple-1000  rounded-3xl py-4 px-6 hover:bg-purple-1050 generic-transition;
+  }
+
+  .button-delete {
+    @apply flex items-center justify-between bg-red-1000 rounded-3xl py-4 px-6  hover:bg-red-1050 generic-transition;
+  }
+
+  .button-edit {
+    @apply flex items-center justify-between bg-ghost-white rounded-3xl py-4 px-6  hover:bg-indigo-1000 generic-transition;
+  }
 }

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { type InvoiceType } from "~/global";
 import InvoiceItem from "./InvoiceItem";
+import { Link } from "@remix-run/react";
 
 /**Variants start */
 const container = {
@@ -25,7 +26,11 @@ const InvoiceItems = ({ invoices }: InvoiceItemsProps) => {
       className="flex flex-col gap-4 mt-8 selection:md:mt-14 lg:mt-16 cursor-pointer"
     >
       {invoices.map((invoice) => {
-        return <InvoiceItem key={invoice.id} {...invoice} />;
+        return (
+          <Link to={`/invoice/${invoice.id}`} key={invoice.id}>
+            <InvoiceItem {...invoice} />
+          </Link>
+        );
       })}
     </motion.ul>
   );
