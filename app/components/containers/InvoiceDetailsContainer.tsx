@@ -1,24 +1,28 @@
+import { Form, Link } from "@remix-run/react";
+import { useState } from "react";
 import { IconArrowLeft } from "~/assets/icons";
 import StatusCard from "../StatusCard";
+import DeleteModal from "../form/DeleteModal";
 import Card from "../ui/Card";
 import LayoutContainer from "../ui/LayoutContainer";
-import { useNavigate } from "@remix-run/react";
 
-const InvoiceDetailsContainer = () => {
-  const navigate = useNavigate();
-  const handleNavigation = () => navigate(-1);
+const InvoiceDetailsContainer: React.FC = () => {
+  const [toggleDeleteModal, setToggleDeleteModal] = useState(false);
+
+  const openDeleteModal = () => {
+    setToggleDeleteModal(true);
+  };
 
   return (
     <LayoutContainer>
       <div className="mb-32">
         <div className="mb-7 md:mb-8">
-          <button
-            className="button-back tertiary-heading-normal flex items-center gap-2"
-            onClick={handleNavigation}
-          >
-            <IconArrowLeft />
-            Go Back
-          </button>
+          <Link to={"../invoices"}>
+            <button className="button-back tertiary-heading-normal flex items-center gap-2">
+              <IconArrowLeft />
+              Go Back
+            </button>
+          </Link>
         </div>
         <Card className="flex gap-4">
           <div className="flex gap-4 flex-1 justify-between items-center md:justify-normal md:flex-auto">
@@ -26,15 +30,27 @@ const InvoiceDetailsContainer = () => {
             <StatusCard status="pending" />
           </div>
           <div className="hidden md:flex gap-2">
-            <button className="button-edit tertiary-heading-normal !text-indigo-1050">
-              Edit
-            </button>
-            <button className="button-delete tertiary-heading-normal !text-ghost-white">
+            <Link to="./edit">
+              <button className="button-edit tertiary-heading-normal !text-indigo-1050">
+                Edit
+              </button>
+            </Link>
+
+            <button
+              className="button-delete tertiary-heading-normal !text-ghost-white"
+              onClick={openDeleteModal}
+            >
               Delete
             </button>
-            <button className="button-primary tertiary-heading-normal !text-ghost-white">
-              Mark as Paid
-            </button>
+            <Form method="post" className="flex gap-2">
+              <button
+                className="button-primary tertiary-heading-normal !text-ghost-white"
+                name="intent"
+                value="paid"
+              >
+                Mark as Paid
+              </button>
+            </Form>
           </div>
         </Card>
         <Card className="mt-10 !p-6 md:!p-12 ">
@@ -126,15 +142,30 @@ const InvoiceDetailsContainer = () => {
             <button className="button-edit tertiary-heading-normal !text-indigo-1050">
               Edit
             </button>
-            <button className="button-delete tertiary-heading-normal !text-ghost-white">
+            <button
+              className="button-delete tertiary-heading-normal !text-ghost-white"
+              onClick={openDeleteModal}
+            >
               Delete
             </button>
-            <button className="button-primary tertiary-heading-normal !text-ghost-white">
-              Mark as Paid
-            </button>
+            <Form method="post">
+              <button
+                className="button-primary tertiary-heading-normal !text-ghost-white"
+                name="intent"
+                value="paid"
+              >
+                Mark as Paid
+              </button>
+            </Form>
           </Card>
         </div>
       </div>
+      {toggleDeleteModal && (
+        <DeleteModal onClose={() => setToggleDeleteModal(false)}>
+          Are you sure you want to delete invoice #XM9141? This action cannot be
+          undone.
+        </DeleteModal>
+      )}
     </LayoutContainer>
   );
 };

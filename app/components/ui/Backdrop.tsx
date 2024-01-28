@@ -7,6 +7,9 @@ const backdropVariant = {
   final: {
     opacity: 0.5,
   },
+  exit: {
+    opacity: 0,
+  },
 };
 
 const Backdrop = () => {
@@ -15,6 +18,7 @@ const Backdrop = () => {
       variants={backdropVariant}
       initial="initial"
       animate="final"
+      exit="exit"
       className="fixed top-0 left-0 right-0 bottom-0 bg-black opacity-50 z-30"
     ></motion.div>
   );

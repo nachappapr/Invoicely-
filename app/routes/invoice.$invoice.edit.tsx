@@ -7,9 +7,9 @@ import {
 } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { json, type DataFunctionArgs } from "@remix-run/node";
-import { Form, useActionData, useNavigate } from "@remix-run/react";
+import { Form, useActionData, useNavigate, useParams } from "@remix-run/react";
 import { formatISO } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import SvgIconDelete from "~/assets/icons/IconDelete";
 import SvgIconPlus from "~/assets/icons/IconPlus";
@@ -50,10 +50,11 @@ export async function action({ request }: DataFunctionArgs) {
   return null;
 }
 
-const CreateInvoiceRoute = () => {
+const EditInvoice = () => {
   const actionData = useActionData<typeof action>();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const ref = useRef<boolean | null>(null);
+  const params = useParams();
   const divRef = useRef<HTMLDivElement>(null);
 
   const [form, fields] = useForm({
@@ -97,7 +98,7 @@ const CreateInvoiceRoute = () => {
   }, [fields.itemList.name, form.ref]);
 
   return (
-    <AnimatePresence>
+    <div>
       <Backdrop />
       <motion.div
         variants={formLayoutVaraint}
@@ -107,8 +108,8 @@ const CreateInvoiceRoute = () => {
         ref={divRef}
       >
         <Form className="flex flex-col gap-6" method="post" {...form.props}>
-          <h2 className="secondary-heading mt-12 mb-0 md:mb-6 md:mt-0 ">
-            New Invoice
+          <h2 className="secondary-heading mb-0 md:mb-6 ">
+            Edit #{params.invoice}
           </h2>
           <fieldset>
             <legend className="text-body-one !font-bold !text-purple-1000 mb-6">
@@ -290,8 +291,8 @@ const CreateInvoiceRoute = () => {
           </div>
         </Form>
       </motion.div>
-    </AnimatePresence>
+    </div>
   );
 };
 
-export default CreateInvoiceRoute;
+export default EditInvoice;
