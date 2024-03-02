@@ -1,9 +1,9 @@
 name: INVOICE APP CI
 on:
   push:
-    branches: [main]
+    branches: [master, main]
   pull_request:
-    branches: [main]
+    branches: [master, main]
 jobs:
   build:
     runs-on: ubuntu-latest
