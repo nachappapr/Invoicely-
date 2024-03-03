@@ -11,12 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build Docker image
-        uses: mr-smithers-excellent/docker-build-push@v6.3
+        uses: docker/build-push-action@v5.1.0
         with:
-          image: invoice-app
           context: .
           file: ./dockerFile.dev
-          tags: latest
+          tags: invoice-app:latest
           push: false
       - name: Run tests in Docker container
         run: |
