@@ -14,7 +14,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v6.3
         with:
           context: .
-          file: ./docketFile.dev
+          file: ./dockerFile.dev
           tags: invoice-app:latest
           push: false
       - name: Run tests in Docker container
