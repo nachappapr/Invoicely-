@@ -10,16 +10,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Build Docker image
-        uses: docker/build-push-action@v5.1.0
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Upload to EB
+        uses: einaregilsson/beanstalk-deploy@v21
         with:
-          context: .
-          file: ./dockerFile.dev
-          tags: invoice-app:latest
-          push: false
-      - name: Run tests in Docker container
-        run: |
-          docker run --rm invoice-app:latest npm run test
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: "invoice-app"
+          environment_name: "invoice-app-env"
+          version_label: "invoice-app-${{ github.sha }}"
+          region: "us-east-1"
+          deployment_package: deploy.zip
+          description: "Deployed from GitHub Actions"
+      # - name: Build Docker image
+      #   uses: docker/build-push-action@v5.1.0
+      #   with:
+      #     context: .
+      #     file: ./dockerFile.dev
+      #     tags: invoice-app:latest
+      #     push: false
+      # - name: Run tests in Docker container
+      #   run: |
+      #     docker run --rm invoice-app:latest npm run test
       # - name: Set up Node.js
       #   uses: actions/setup-node@v3
       #   with:
