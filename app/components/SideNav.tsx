@@ -2,6 +2,7 @@ import { useState } from "react";
 import { IconMoon, IconSun } from "~/assets/icons";
 import SvgLogo from "~/assets/icons/Logo";
 import userAvatarUrl from "../assets/image-avatar.jpg";
+import { Link } from "@remix-run/react";
 
 const SideNav = () => {
   const [theme, setTheme] = useState("light");
@@ -28,13 +29,15 @@ const SideNav = () => {
       </button>
       <div className="h-full w-[1px] ml-6 border-none lg:h-[1px]  lg:w-full lg:mt-8 lg:ml-0 bg-gray-1000"></div>
       <div className="px-6 lg:py-6">
-        <div className="h-10 w-10 rounded-full">
-          <img
-            src={userAvatarUrl}
-            alt="user avatar"
-            className="w-full h-full rounded-full"
-          />
-        </div>
+        <Link to="/user">
+          <div className="h-10 w-10 rounded-full">
+            <img
+              src={userAvatarUrl}
+              alt="user avatar"
+              className="w-full h-full rounded-full"
+            />
+          </div>
+        </Link>
       </div>
     </div>
   );
