@@ -4,7 +4,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "npx prisma generate && remix build",
+    "postinstall": "prisma generate",
+    "build": "prisma generate && remix build",
     "icons": "npx @svgr/cli --out-dir app/assets/icons -- app/assets",
     "icons:watch": "npm-watch icons",
     "dev:svg": "run-s icons icons:watch",
