@@ -1,7 +1,7 @@
 export type InvoiceType = {
   id: string;
-  date: string;
-  to: string;
-  amount: string;
-  status: "paid" | "pending" | "draft";
+  clientName: string;
+  status: "draft" | "pending" | "paid";
+  createdAt: string;
+  total: number;
 };

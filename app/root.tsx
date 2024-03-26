@@ -1,5 +1,5 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction } from "@remix-run/node";
+import { json, type LinksFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -7,11 +7,17 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 import tailwindStyleUrl from "./styles/tailwind.css";
 import faviconUrl from "./assets/favicon.svg";
 import SideNav from "./components/SideNav";
 import LayoutContainer from "./components/ui/LayoutContainer";
+import { honeypot } from "./utils/honeypot.server";
+import { getEnv } from "./utils/env.server";
+import { HoneypotProvider } from "remix-utils/honeypot/react";
+import { csrf } from "./utils/csrf.server";
+import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -19,7 +25,27 @@ export const links: LinksFunction = () => [
   { rel: "icon", href: faviconUrl },
 ];
 
+export async function loader() {
+  const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
+  const honeyProps = honeypot.getInputProps();
+  return json(
+    {
+      ENV: getEnv(),
+      honeyProps,
+      csrfToken,
+    },
+    {
+      headers: csrfCookieHeader
+        ? {
+            "Set-Cookie": csrfCookieHeader,
+          }
+        : {},
+    }
+  );
+}
+
 export const Document = ({ children }: { children: React.ReactNode }) => {
+  const data = useLoaderData<typeof loader>();
   return (
     <html lang="en">
       <head>
@@ -34,16 +60,26 @@ export const Document = ({ children }: { children: React.ReactNode }) => {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
       </body>
     </html>
   );
 };
 
 export default function App() {
+  const data = useLoaderData<typeof loader>();
   return (
-    <Document>
-      <SideNav />
-    </Document>
+    <AuthenticityTokenProvider token={data.csrfToken}>
+      <HoneypotProvider {...data.honeyProps}>
+        <Document>
+          <SideNav />
+        </Document>
+      </HoneypotProvider>
+    </AuthenticityTokenProvider>
   );
 }
 

@@ -1,16 +1,79 @@
-import { Form, Link } from "@remix-run/react";
-import { useState } from "react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Fragment, useState } from "react";
 import { IconArrowLeft } from "~/assets/icons";
+import type {
+  PAYMENT_TERMS,
+  STATUS_TYPES,
+} from "~/constants/invoices.contants";
+import { type loader } from "~/routes/invoice.$invoice";
+import {
+  addDaysToPaymentDate,
+  getFormattedDate,
+  getTotals,
+} from "~/utils/misc";
 import StatusCard from "../StatusCard";
 import DeleteModal from "../form/DeleteModal";
 import Card from "../ui/Card";
 import LayoutContainer from "../ui/LayoutContainer";
 
-const InvoiceDetailsContainer: React.FC = () => {
+const InvoiceDetailsContainer = () => {
+  const {
+    invoice: {
+      id,
+      clientName,
+      clientAddress,
+      clientCity,
+      clientCountry,
+      clientPostalCode,
+      clientEmail,
+      status,
+      projectDescription,
+      fromAddress,
+      fromCity,
+      fromCountry,
+      fromPostalCode,
+      invoiceDate,
+      paymentTerms,
+      items,
+    },
+  } = useLoaderData<typeof loader>();
   const [toggleDeleteModal, setToggleDeleteModal] = useState(false);
 
   const openDeleteModal = () => {
     setToggleDeleteModal(true);
+  };
+
+  const renderListItems = () => {
+    return items.map((item) => (
+      <Fragment key={item.id}>
+        <p className="tertiary-heading-normal">{item.name}</p>
+        <p className="tertiary-heading-normal text-light justify-self-center">
+          {item.quantity}
+        </p>
+        <p className="tertiary-heading-normal text-light justify-self-end">
+          {`$ ${item.price.toFixed(2)}`}
+        </p>
+        <p className="tertiary-heading-normal justify-self-end">{`$ ${item.total?.toFixed(
+          2
+        )}`}</p>
+      </Fragment>
+    ));
+  };
+
+  const renderItemsForMobile = () => {
+    return items.map((item) => (
+      <Fragment key={item.id}>
+        <div>
+          <p className="tertiary-heading-normal">{item.name}</p>
+          <p className="tertiary-heading-normal text-light justify-self-center">
+            {`${item.quantity} x $ ${item.price.toFixed(2)}`}
+          </p>
+        </div>
+        <p className="tertiary-heading-normal justify-self-end">{`$ ${item.total?.toFixed(
+          2
+        )}`}</p>
+      </Fragment>
+    ));
   };
 
   return (
@@ -27,7 +90,9 @@ const InvoiceDetailsContainer: React.FC = () => {
         <Card className="flex gap-4">
           <div className="flex gap-4 flex-1 justify-between items-center md:justify-normal md:flex-auto">
             <p className="text-body-two text-light capitalize">status</p>
-            <StatusCard status="pending" />
+            <StatusCard
+              status={status as unknown as (typeof STATUS_TYPES)[number]}
+            />
           </div>
           <div className="hidden md:flex gap-2">
             <Link to="./edit">
@@ -56,38 +121,47 @@ const InvoiceDetailsContainer: React.FC = () => {
         <Card className="mt-10 !p-6 md:!p-12 ">
           <div className="flex flex-col gap-8 md:flex-row justify-between items-start">
             <div>
-              <h3 className="tertiary-heading">#XM9141</h3>
-              <p className="text-body-two text-light">Graphic Design</p>
+              <h3 className="tertiary-heading">
+                #{id?.slice(-5)?.toUpperCase()}
+              </h3>
+              <p className="text-body-two text-light">{projectDescription}</p>
             </div>
             <p className="text-body-two text-light [&>*]:block md:text-right">
-              <span>19 Union Terrace</span>
-              <span>London</span>
-              <span>E1 3EZ</span>
-              <span>United Kingdom</span>
+              <span>{fromAddress}</span>
+              <span>{fromCity}</span>
+              <span>{fromPostalCode}</span>
+              <span>{fromCountry}</span>
             </p>
           </div>
           <div className="grid grid-cols-2 grid-rows-3 gap-6 md:gap-4 mt-8 md:mt-5 md:grid-cols-3 md:grid-rows-2">
             <div className="flex flex-col gap-1">
               <p className="text-body-two text-light">Invoice Date</p>
-              <p className="tertiary-heading !text-[15px]">19 Aug 2021</p>
+              <p className="tertiary-heading !text-[15px]">
+                {getFormattedDate(invoiceDate)}
+              </p>
             </div>
             <div className="flex flex-col gap-2 row-start-2">
               <p className="text-body-two text-light">Payment Due</p>
-              <p className="tertiary-heading !text-[15px]">20 Sep 2021</p>
+              <p className="tertiary-heading !text-[15px]">
+                {addDaysToPaymentDate(
+                  invoiceDate,
+                  paymentTerms as keyof typeof PAYMENT_TERMS
+                )}
+              </p>
             </div>
             <div className="flex flex-col gap-2 row-start-1 row-span-2">
               <p className="text-body-two text-light">Bill To</p>
-              <p className="tertiary-heading !text-[15px]">Alex Grim</p>
+              <p className="tertiary-heading !text-[15px]">{clientName}</p>
               <p className="text-body-two text-light [&>*]:block ">
-                <span>19 Union Terrace</span>
-                <span>London</span>
-                <span>E1 3EZ</span>
-                <span>United Kingdom</span>
+                <span>{clientAddress}</span>
+                <span>{clientCity}</span>
+                <span>{clientPostalCode}</span>
+                <span>{clientCountry}</span>
               </p>
             </div>
             <div>
               <p className="text-body-two text-light">Sent to</p>
-              <p className="tertiary-heading !text-[15px]">alexgrim@mail.com</p>
+              <p className="tertiary-heading !text-[15px]">{clientEmail}</p>
             </div>
           </div>
           <div className="mt-10 p-6 capitalize bg-ghost-white dark:bg-blue-1050  rounded-t-md md:mt-12 md:p-8">
@@ -98,42 +172,16 @@ const InvoiceDetailsContainer: React.FC = () => {
               </p>
               <p className="text-body-two text-light justify-self-end">Price</p>
               <p className="text-body-two text-light justify-self-end">Total</p>
-              <p className="tertiary-heading-normal">Banner Design</p>
-              <p className="tertiary-heading-normal text-light justify-self-center">
-                1
-              </p>
-              <p className="tertiary-heading-normal text-light justify-self-end">
-                $158.00
-              </p>
-              <p className="tertiary-heading-normal justify-self-end">
-                $158.00
-              </p>
+              {renderListItems()}
             </div>
             <div className="grid grid-cols-[2fr_1fr] items-center gap-6 md:hidden">
-              <div>
-                <p className="tertiary-heading-normal">Banner Design</p>
-                <p className="tertiary-heading-normal text-light justify-self-center">
-                  1 x $156.00
-                </p>
-              </div>
-              <p className="tertiary-heading-normal justify-self-end">
-                $158.00
-              </p>
-              <div>
-                <p className="tertiary-heading-normal">Banner Design</p>
-                <p className="tertiary-heading-normal text-light justify-self-center">
-                  1 x $156.00
-                </p>
-              </div>
-              <p className="tertiary-heading-normal justify-self-end">
-                $158.00
-              </p>
+              {renderItemsForMobile()}
             </div>
           </div>
           <div className="flex justify-between items-center bg-gray-1050 gap-4 dark:bg-black-1000 p-6 rounded-b-md md:p-8">
             <p className="text-body-two !text-white">Amount Due</p>
             <div className="text-body-two !text-[24px] !text-white">
-              £ 556.00
+              {`$ ${getTotals(items).toFixed(2)}`}
             </div>
           </div>
         </Card>

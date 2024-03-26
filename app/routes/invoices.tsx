@@ -8,7 +8,8 @@ import {
 import InvoiceDashboardContainer from "~/components/containers/InvoiceDashboardContainer";
 import InvoiceItems from "~/components/invoice/InvoiceItems";
 import NoInvoice from "~/components/invoice/NoInvoice";
-import { INVOICE_LIST_ITEMS } from "~/db";
+import { prisma } from "~/utils/db.server";
+import { invariantResponse } from "~/utils/misc";
 
 export const meta: MetaFunction = () => {
   return [
@@ -21,8 +22,38 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = () => {
-  const invoices = INVOICE_LIST_ITEMS;
+export const loader = async () => {
+  const result = await prisma.invoice.findMany({
+    where: { userId: "clu7w50ls0000f7q3d91ro13m" },
+    select: {
+      clientName: true,
+      id: true,
+      createdAt: true,
+      status: true,
+      items: {
+        select: {
+          total: true,
+        },
+      },
+    },
+  });
+
+  invariantResponse(result, "Failed to fetch invoices", { status: 400 });
+
+  const invoices = result.map((invoice) => {
+    const total = invoice.items.reduce(
+      (acc, item) => acc + (item?.total ?? 0),
+      0
+    );
+    return {
+      id: invoice.id,
+      clientName: invoice.clientName,
+      status: invoice.status as "draft" | "pending" | "paid",
+      createdAt: new Date(invoice.createdAt).toLocaleDateString("en-US"),
+      total,
+    };
+  });
+
   return json({ invoices }, { status: 200 });
 };
 

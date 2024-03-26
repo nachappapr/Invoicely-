@@ -11,6 +11,8 @@ import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { formatISO } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef } from "react";
+import { AuthenticityTokenInput } from "remix-utils/csrf/react";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
 import SvgIconDelete from "~/assets/icons/IconDelete";
 import SvgIconPlus from "~/assets/icons/IconPlus";
 import Calender from "~/components/form/Calender";
@@ -19,7 +21,10 @@ import ItemFieldSet from "~/components/form/ItemFieldSet";
 import StyledInput from "~/components/form/StyledInput";
 import StyledSelect from "~/components/form/StyledSelect";
 import Backdrop from "~/components/ui/Backdrop";
+import { PAYMENT_TERMS } from "~/constants/invoices.contants";
 import useOutsideClick from "~/hooks/useOutsideClick";
+import { validateCSRF } from "~/utils/csrf.server";
+import { checkHoneypot } from "~/utils/honeypot.server";
 import { InvoiceSchema } from "~/utils/schema";
 
 const formLayoutVaraint = {
@@ -38,9 +43,12 @@ const formLayoutVaraint = {
 
 export async function action({ request }: DataFunctionArgs) {
   const formData = await request.formData();
+  await validateCSRF(formData, request.headers);
   const submission = parse(formData, {
     schema: InvoiceSchema,
   });
+
+  checkHoneypot(formData);
 
   if (!submission.value) {
     return json({ status: "error", submission } as const, { status: 400 });
@@ -224,7 +232,7 @@ const CreateInvoiceRoute = () => {
                     </div>
                   </div>
                   <StyledSelect
-                    options={["Net 1 Day", "Net 7 Days"]}
+                    options={Object.keys(PAYMENT_TERMS)}
                     field={fields.payment}
                   />
                 </div>
@@ -272,6 +280,7 @@ const CreateInvoiceRoute = () => {
               <span>add new item</span>
             </button>
           </fieldset>
+          <HoneypotInputs />
           <FormError
             formError={false}
             invoiceItemError={fields.itemList.error}
@@ -284,6 +293,7 @@ const CreateInvoiceRoute = () => {
             >
               cancel
             </button>
+            <AuthenticityTokenInput />
             <button className="saveButton" type="submit">
               save changes
             </button>
