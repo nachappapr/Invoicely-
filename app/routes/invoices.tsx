@@ -24,7 +24,7 @@ export const meta: MetaFunction = () => {
 
 export const loader = async () => {
   const result = await prisma.invoice.findMany({
-    where: { userId: "clu7w50ls0000f7q3d91ro13m" },
+    where: { userId: "clu7zzd150000f0a1uu8mp1rr" },
     select: {
       clientName: true,
       id: true,
