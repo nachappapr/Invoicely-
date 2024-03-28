@@ -61,7 +61,7 @@ const Invoices = () => {
   const { invoices } = useLoaderData<typeof loader>();
 
   return (
-    <InvoiceDashboardContainer>
+    <InvoiceDashboardContainer totalInvoice={invoices?.length ?? 0}>
       {invoices?.length === 0 && <NoInvoice />}
       <InvoiceItems invoices={invoices} />
       <Outlet />
@@ -80,7 +80,7 @@ export function ErrorBoundary() {
   }
 
   return (
-    <InvoiceDashboardContainer>
+    <InvoiceDashboardContainer totalInvoice={0}>
       <NoInvoice title={errorTitle} description="please check in sometime ✈️" />
     </InvoiceDashboardContainer>
   );

@@ -5,8 +5,10 @@ import FilterStatus from "../FilterStatus";
 import LayoutContainer from "../ui/LayoutContainer";
 
 const InvoiceDashboardContainer = ({
+  totalInvoice,
   children,
 }: {
+  totalInvoice: number;
   children: React.ReactNode;
 }) => {
   return (
@@ -15,7 +17,7 @@ const InvoiceDashboardContainer = ({
         <div>
           <h1 className="primary-heading ">Invoices</h1>
           <span className="hidden lg:inline-block text-body-two !text-indigo-2000 dark:!text-indigo-1000">
-            There are 7 total invoices
+            {`There are ${totalInvoice} total invoices`}
           </span>
           <span className="lg:hidden text-body-two !text-indigo-2000 dark:!text-indigo-1000">
             7 invoices

@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { IconArrowRight } from "~/assets/icons";
 import { type InvoiceType } from "~/global";
-import StatusCard from "../StatusCard";
 import { getFormattedDate } from "~/utils/misc";
+import StatusCard from "../StatusCard";
 
 /**Variants start */
 const item = {
@@ -22,7 +22,7 @@ const InvoiceItem = (props: InvoiceType) => {
       <div className="text-body-one !text-indigo-1050">
         Due {getFormattedDate(createdAt)}
       </div>
-      <div className="text-body-one text-center !text-indigo-2000 col-start-2  row-start-1 md:col-start-auto md:row-start-auto">
+      <div className="text-body-one text-center !text-indigo-2000 col-start-2  row-start-1 md:col-start-auto md:row-start-auto capitalize">
         {clientName}
       </div>
       <p className="tertiary-heading col-start-1 row-start-3 md:col-start-auto md:row-start-auto">

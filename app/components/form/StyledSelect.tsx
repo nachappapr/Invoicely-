@@ -30,6 +30,7 @@ const StyledSelect = ({ options, field }: SelectProps) => {
         }}
       />
       <Select
+        className="capitalize"
         onChange={control.change}
         defaultValue={field.defaultValue}
         options={options}

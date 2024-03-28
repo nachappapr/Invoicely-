@@ -1,4 +1,4 @@
-import { json, type DataFunctionArgs } from "@remix-run/node";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import { Outlet, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import InvoiceDetailsContainer from "~/components/containers/InvoiceDetailsContainer";
 import NoInvoice from "~/components/invoice/NoInvoice";
@@ -22,11 +22,35 @@ export async function loader({ params }: DataFunctionArgs) {
   return json({ invoice }, { status: 200 });
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request, params }: DataFunctionArgs) {
+  const invoiceId = params.invoice;
   const formData = await request.formData();
-  console.log(formData.get("intent"), "intent");
+  const intent = formData.get("intent");
 
-  // need to update the form
+  invariantResponse(invoiceId, "Invoice not found", { status: 404 });
+
+  if (intent) {
+    if (intent === "delete") {
+      await prisma.invoice.delete({
+        where: {
+          id: invoiceId,
+        },
+      });
+    }
+    if (intent === "paid") {
+      await prisma.invoice.update({
+        where: {
+          id: invoiceId,
+        },
+        data: {
+          status: "paid",
+        },
+      });
+      return redirect(`/invoice/${invoiceId}`);
+    }
+    return redirect("/invoices");
+  }
+
   return null;
 }
 

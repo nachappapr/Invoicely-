@@ -6,7 +6,7 @@ import {
   useForm,
 } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { json, type DataFunctionArgs } from "@remix-run/node";
+import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { formatISO } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,10 +20,13 @@ import FormError from "~/components/form/FormError";
 import ItemFieldSet from "~/components/form/ItemFieldSet";
 import StyledInput from "~/components/form/StyledInput";
 import StyledSelect from "~/components/form/StyledSelect";
+import AnimatedLoader from "~/components/ui/AnimatedLoader";
 import Backdrop from "~/components/ui/Backdrop";
 import { PAYMENT_TERMS } from "~/constants/invoices.contants";
+import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
 import useOutsideClick from "~/hooks/useOutsideClick";
 import { validateCSRF } from "~/utils/csrf.server";
+import { prisma } from "~/utils/db.server";
 import { checkHoneypot } from "~/utils/honeypot.server";
 import { InvoiceSchema } from "~/utils/schema";
 
@@ -43,6 +46,8 @@ const formLayoutVaraint = {
 
 export async function action({ request }: DataFunctionArgs) {
   const formData = await request.formData();
+  const intent = formData.get("intent");
+
   await validateCSRF(formData, request.headers);
   const submission = parse(formData, {
     schema: InvoiceSchema,
@@ -53,9 +58,26 @@ export async function action({ request }: DataFunctionArgs) {
   if (!submission.value) {
     return json({ status: "error", submission } as const, { status: 400 });
   }
+  const { itemList, ...invoice } = submission.value;
 
-  // need to update the form
-  return null;
+  await prisma.invoice.create({
+    data: {
+      ...invoice,
+      invoiceDate: new Date(invoice.invoiceDate),
+      status: intent === "draft" ? "draft" : "pending",
+      items: {
+        create: itemList.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.quantity * item.price,
+        })),
+      },
+      userId: "clu7zzd150000f0a1uu8mp1rr",
+    },
+  });
+
+  return redirect("/invoices");
 }
 
 const CreateInvoiceRoute = () => {
@@ -63,6 +85,8 @@ const CreateInvoiceRoute = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const ref = useRef<boolean | null>(null);
   const divRef = useRef<HTMLDivElement>(null);
+
+  const isPending = useIsFormSubmitting();
 
   const [form, fields] = useForm({
     id: "invoice-form",
@@ -74,8 +98,8 @@ const CreateInvoiceRoute = () => {
       });
     },
     defaultValue: {
-      eventDate: formatISO(new Date(), { representation: "date" }),
-      payment: "Net 1 Day",
+      invoiceDate: formatISO(new Date(), { representation: "date" }),
+      paymentTerms: "Net 1 Day",
     },
   });
   const invoiceItemList = useFieldList(form.ref, fields.itemList);
@@ -114,7 +138,11 @@ const CreateInvoiceRoute = () => {
         className="fixed top-0 bottom-0 left-0 z-40 w-full md:w-[90%] lg:w-[40rem] lg:left-16 px-16 py-14  bg-white dark:bg-blue-2000 md:rounded-3xl lg:md:rounded-3xl overflow-y-auto"
         ref={divRef}
       >
-        <Form className="flex flex-col gap-6" method="post" {...form.props}>
+        <Form
+          className="flex flex-col gap-6 relative"
+          method="post"
+          {...form.props}
+        >
           <h2 className="secondary-heading mt-12 mb-0 md:mb-6 md:mt-0 ">
             New Invoice
           </h2>
@@ -124,35 +152,35 @@ const CreateInvoiceRoute = () => {
             </legend>
             <div className="flex flex-col gap-4">
               <StyledInput
-                htmlFor={fields.address.id}
+                htmlFor={fields.fromAddress.id}
                 label="Address"
-                errorId={fields.address.errorId}
-                error={fields.address.error}
-                {...conform.input(fields.address)}
+                errorId={fields.fromAddress.errorId}
+                error={fields.fromAddress.error}
+                {...conform.input(fields.fromAddress)}
                 autoFocus
                 showErrorMessages={true}
               />
               <div className="flex flex-row gap-4">
                 <StyledInput
-                  htmlFor={fields.city.id}
+                  htmlFor={fields.fromCity.id}
                   label="City"
-                  errorId={fields.city.errorId}
-                  error={fields.city.error}
-                  {...conform.input(fields.city)}
+                  errorId={fields.fromCity.errorId}
+                  error={fields.fromCity.error}
+                  {...conform.input(fields.fromCity)}
                 />
                 <StyledInput
-                  htmlFor={fields.postalCode.id}
+                  htmlFor={fields.fromPostalCode.id}
                   label="Post Code"
-                  errorId={fields.postalCode.errorId}
-                  error={fields.postalCode.error}
-                  {...conform.input(fields.postalCode)}
+                  errorId={fields.fromPostalCode.errorId}
+                  error={fields.fromPostalCode.error}
+                  {...conform.input(fields.fromPostalCode)}
                 />
                 <StyledInput
-                  htmlFor={fields.country.id}
+                  htmlFor={fields.fromCountry.id}
                   label="Country"
-                  errorId={fields.country.errorId}
-                  error={fields.country.error}
-                  {...conform.input(fields.country)}
+                  errorId={fields.fromCountry.errorId}
+                  error={fields.fromCountry.error}
+                  {...conform.input(fields.fromCountry)}
                 />
               </div>
             </div>
@@ -195,11 +223,11 @@ const CreateInvoiceRoute = () => {
                   {...conform.input(fields.clientCity)}
                 />
                 <StyledInput
-                  htmlFor={fields.clientPostCode.id}
+                  htmlFor={fields.clientPostalCode.id}
                   label="Post Code"
-                  errorId={fields.clientPostCode.errorId}
-                  error={fields.clientPostCode.error}
-                  {...conform.input(fields.clientPostCode)}
+                  errorId={fields.clientPostalCode.errorId}
+                  error={fields.clientPostalCode.error}
+                  {...conform.input(fields.clientPostalCode)}
                 />
                 <StyledInput
                   htmlFor={fields.clientCountry.id}
@@ -212,38 +240,41 @@ const CreateInvoiceRoute = () => {
               <div className="flex flex-row gap-4">
                 <div className="w-full">
                   <Calender
-                    htmlFor={fields.eventDate.id}
+                    htmlFor={fields.invoiceDate.id}
                     label="Invoice Date"
-                    errorId={fields.eventDate.errorId}
-                    error={fields.eventDate.error}
-                    field={fields.eventDate}
+                    errorId={fields.invoiceDate.errorId}
+                    error={fields.invoiceDate.error}
+                    field={fields.invoiceDate}
                   />
                 </div>
                 <div className="w-full">
                   <div className="flex justify-between items-start mb-2">
                     <label
-                      htmlFor={fields.payment.id}
+                      htmlFor={fields.paymentTerms.id}
                       className="text-body-two !text-indigo-1050 dark:!indigo-1000 inline-block"
                     >
                       Payment Terms
                     </label>
-                    <div className="error-text" id={fields.payment.errorId}>
-                      {fields.payment.error}
+                    <div
+                      className="error-text"
+                      id={fields.paymentTerms.errorId}
+                    >
+                      {fields.paymentTerms.error}
                     </div>
                   </div>
                   <StyledSelect
                     options={Object.keys(PAYMENT_TERMS)}
-                    field={fields.payment}
+                    field={fields.paymentTerms}
                   />
                 </div>
               </div>
               <div>
                 <StyledInput
-                  htmlFor={fields.description.id}
+                  htmlFor={fields.projectDescription.id}
                   label="Project Description"
-                  errorId={fields.description.errorId}
-                  error={fields.description.error}
-                  {...conform.input(fields.description)}
+                  errorId={fields.projectDescription.errorId}
+                  error={fields.projectDescription.error}
+                  {...conform.input(fields.projectDescription)}
                   showErrorMessages={true}
                 />
               </div>
@@ -281,22 +312,31 @@ const CreateInvoiceRoute = () => {
             </button>
           </fieldset>
           <HoneypotInputs />
+          <AuthenticityTokenInput />
           <FormError
             formError={false}
             invoiceItemError={fields.itemList.error}
           />
-          <div className="flex justify-end gap-2 ">
-            <button
-              className="discardButton"
-              type="button"
-              onClick={handleClick}
-            >
-              cancel
+
+          <div className="flex justify-between items-center">
+            <button className="editButton" type="button" onClick={handleClick}>
+              discard
             </button>
-            <AuthenticityTokenInput />
-            <button className="saveButton" type="submit">
-              save changes
-            </button>
+            <div className="flex items-center justify-end gap-2 ">
+              <button
+                className="discardButton"
+                type="submit"
+                disabled={isPending}
+                name="intent"
+                value="draft"
+              >
+                Save as Draft
+              </button>
+
+              <button className="saveButton" type="submit" disabled={isPending}>
+                {isPending ? <AnimatedLoader /> : "save changes"}
+              </button>
+            </div>
           </div>
         </Form>
       </motion.div>

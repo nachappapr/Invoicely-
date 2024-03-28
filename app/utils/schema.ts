@@ -1,16 +1,17 @@
 import { z } from "zod";
 
 export const itemSchema = z.object({
-  item: z.string().min(1),
-  qty: z.number({ required_error: "can't be empty" }),
+  id: z.string().optional(),
+  name: z.string().min(1),
+  quantity: z.number({ required_error: "can't be empty" }),
   price: z.number({ required_error: "can't be empty" }),
 });
 
 export const InvoiceSchema = z.object({
-  address: z.string({ required_error: "can't be empty" }).min(3).max(1000),
-  city: z.string({ required_error: "can't be empty" }).min(3).max(100),
-  postalCode: z.number({ required_error: "can't be empty" }),
-  country: z.string({ required_error: "can't be empty" }).min(3).max(100),
+  fromAddress: z.string({ required_error: "can't be empty" }).min(3).max(1000),
+  fromCity: z.string({ required_error: "can't be empty" }).min(3).max(100),
+  fromPostalCode: z.string({ required_error: "can't be empty" }).min(1),
+  fromCountry: z.string({ required_error: "can't be empty" }).min(3).max(100),
   clientName: z.string({ required_error: "can't be empty" }).min(3).max(100),
   clientEmail: z
     .string({ required_error: "can't be empty" })
@@ -20,10 +21,14 @@ export const InvoiceSchema = z.object({
     .min(3)
     .max(1000),
   clientCity: z.string({ required_error: "can't be empty" }).min(3).max(100),
-  clientPostCode: z.number({ required_error: "can't be empty" }),
+  clientPostalCode: z.string({ required_error: "can't be empty" }).min(1),
   clientCountry: z.string({ required_error: "can't be empty" }).min(3).max(100),
-  eventDate: z.string({ required_error: "can't be empty" }),
-  payment: z.string({ required_error: "can't be empty" }).min(3).max(100),
-  description: z.string({ required_error: "can't be empty" }).min(3).max(100),
+  invoiceDate: z.string({ required_error: "can't be empty" }),
+  paymentTerms: z.string({ required_error: "can't be empty" }).min(3).max(100),
+  status: z.string({ required_error: "can't be empty" }).optional(),
+  projectDescription: z
+    .string({ required_error: "can't be empty" })
+    .min(3)
+    .max(100),
   itemList: z.array(itemSchema).min(1),
 });

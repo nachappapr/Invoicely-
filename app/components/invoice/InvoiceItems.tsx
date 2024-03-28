@@ -1,7 +1,7 @@
+import { Link } from "@remix-run/react";
 import { motion } from "framer-motion";
 import { type InvoiceType } from "~/global";
 import InvoiceItem from "./InvoiceItem";
-import { Link } from "@remix-run/react";
 
 /**Variants start */
 const container = {

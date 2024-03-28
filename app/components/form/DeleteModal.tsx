@@ -1,6 +1,8 @@
 import { Form } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
+import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
+import AnimatedLoader from "../ui/AnimatedLoader";
 import Backdrop from "../ui/Backdrop";
 import Card from "../ui/Card";
 
@@ -23,6 +25,8 @@ const DeleteModal = ({
   children?: React.ReactNode;
   onClose: () => void;
 }) => {
+  const isPending = useIsFormSubmitting();
+
   return (
     <AnimatePresence>
       <Backdrop />
@@ -47,8 +51,9 @@ const DeleteModal = ({
                 className="button-delete tertiary-heading-normal !text-ghost-white"
                 name="intent"
                 value="delete"
+                disabled={isPending}
               >
-                Delete
+                {isPending ? <AnimatedLoader /> : "Delete"}
               </button>
             </Form>
           </div>

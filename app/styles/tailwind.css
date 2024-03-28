@@ -12,13 +12,13 @@
   }
 
   *::-webkit-scrollbar-track {
-    background: theme(colors.purple-1000);
+    background: theme(colors.indigo-1000);
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: theme(colors.indigo-1000);
+    background-color: theme(colors.purple-1000);
     border-radius: 20px;
-    border: 3px solid theme(colors.indigo-1000);
+    border: 3px solid theme(colors.purple-1000);
   }
 }
 
@@ -48,6 +48,10 @@
 
   .discardButton {
     @apply capitalize py-4 px-6 tertiary-heading-normal bg-gray-1050 !text-indigo-2000 dark:!text-indigo-1000 rounded-full hover:bg-black-1000 hover:dark:bg-blue-1000 generic-transition;
+  }
+
+  .editButton {
+    @apply button-edit tertiary-heading-normal !text-indigo-1050 capitalize;
   }
 
   .generic-transition {

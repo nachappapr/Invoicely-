@@ -13,6 +13,7 @@ import {
 } from "~/utils/misc";
 import StatusCard from "../StatusCard";
 import DeleteModal from "../form/DeleteModal";
+import MarkAsPaid from "../form/MarkAsPaid";
 import Card from "../ui/Card";
 import LayoutContainer from "../ui/LayoutContainer";
 
@@ -46,7 +47,7 @@ const InvoiceDetailsContainer = () => {
   const renderListItems = () => {
     return items.map((item) => (
       <Fragment key={item.id}>
-        <p className="tertiary-heading-normal">{item.name}</p>
+        <p className="tertiary-heading-normal capitalize">{item.name}</p>
         <p className="tertiary-heading-normal text-light justify-self-center">
           {item.quantity}
         </p>
@@ -64,7 +65,7 @@ const InvoiceDetailsContainer = () => {
     return items.map((item) => (
       <Fragment key={item.id}>
         <div>
-          <p className="tertiary-heading-normal">{item.name}</p>
+          <p className="tertiary-heading-normal capitalize">{item.name}</p>
           <p className="tertiary-heading-normal text-light justify-self-center">
             {`${item.quantity} x $ ${item.price.toFixed(2)}`}
           </p>
@@ -96,9 +97,7 @@ const InvoiceDetailsContainer = () => {
           </div>
           <div className="hidden md:flex gap-2">
             <Link to="./edit">
-              <button className="button-edit tertiary-heading-normal !text-indigo-1050">
-                Edit
-              </button>
+              <button className="editButton">Edit</button>
             </Link>
 
             <button
@@ -107,15 +106,7 @@ const InvoiceDetailsContainer = () => {
             >
               Delete
             </button>
-            <Form method="post" className="flex gap-2">
-              <button
-                className="button-primary tertiary-heading-normal !text-ghost-white"
-                name="intent"
-                value="paid"
-              >
-                Mark as Paid
-              </button>
-            </Form>
+            <MarkAsPaid />
           </div>
         </Card>
         <Card className="mt-10 !p-6 md:!p-12 ">
@@ -124,9 +115,11 @@ const InvoiceDetailsContainer = () => {
               <h3 className="tertiary-heading">
                 #{id?.slice(-5)?.toUpperCase()}
               </h3>
-              <p className="text-body-two text-light">{projectDescription}</p>
+              <p className="text-body-two text-light capitalize">
+                {projectDescription}
+              </p>
             </div>
-            <p className="text-body-two text-light [&>*]:block md:text-right">
+            <p className="text-body-two text-light [&>*]:block md:text-right capitalize">
               <span>{fromAddress}</span>
               <span>{fromCity}</span>
               <span>{fromPostalCode}</span>
@@ -151,8 +144,10 @@ const InvoiceDetailsContainer = () => {
             </div>
             <div className="flex flex-col gap-2 row-start-1 row-span-2">
               <p className="text-body-two text-light">Bill To</p>
-              <p className="tertiary-heading !text-[15px]">{clientName}</p>
-              <p className="text-body-two text-light [&>*]:block ">
+              <p className="tertiary-heading !text-[15px] capitalize">
+                {clientName}
+              </p>
+              <p className="text-body-two text-light [&>*]:block capitalize">
                 <span>{clientAddress}</span>
                 <span>{clientCity}</span>
                 <span>{clientPostalCode}</span>
