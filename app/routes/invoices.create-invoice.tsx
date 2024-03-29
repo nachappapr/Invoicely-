@@ -42,6 +42,15 @@ const formLayoutVaraint = {
       delay: 0.1,
     },
   },
+  exit: {
+    opacity: 0,
+    transition: {
+      type: "spring",
+      stiffness: 50,
+      damping: 20,
+      delay: 0.1,
+    },
+  },
 };
 
 export async function action({ request }: DataFunctionArgs) {
@@ -129,12 +138,13 @@ const CreateInvoiceRoute = () => {
   }, [fields.itemList.name, form.ref]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <Backdrop />
       <motion.div
         variants={formLayoutVaraint}
         initial="initial"
         animate="animate"
+        exit="exit"
         className="fixed top-0 bottom-0 left-0 z-40 w-full md:w-[90%] lg:w-[40rem] lg:left-16 px-16 py-14  bg-white dark:bg-blue-2000 md:rounded-3xl lg:md:rounded-3xl overflow-y-auto"
         ref={divRef}
       >

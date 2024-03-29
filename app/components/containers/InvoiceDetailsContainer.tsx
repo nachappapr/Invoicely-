@@ -1,4 +1,5 @@
 import { Form, Link, useLoaderData } from "@remix-run/react";
+import { AnimatePresence } from "framer-motion";
 import { Fragment, useState } from "react";
 import { IconArrowLeft } from "~/assets/icons";
 import type {
@@ -203,12 +204,14 @@ const InvoiceDetailsContainer = () => {
           </Card>
         </div>
       </div>
-      {toggleDeleteModal && (
-        <DeleteModal onClose={() => setToggleDeleteModal(false)}>
-          Are you sure you want to delete invoice #XM9141? This action cannot be
-          undone.
-        </DeleteModal>
-      )}
+      <AnimatePresence mode="wait">
+        {toggleDeleteModal && (
+          <DeleteModal onClose={() => setToggleDeleteModal(false)}>
+            Are you sure you want to delete invoice #XM9141? This action cannot
+            be undone.
+          </DeleteModal>
+        )}
+      </AnimatePresence>
     </LayoutContainer>
   );
 };

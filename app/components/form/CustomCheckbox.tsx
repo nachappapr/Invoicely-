@@ -2,15 +2,22 @@ import { IconCheck } from "~/assets/icons";
 
 type CustomCheckboxProps = {
   label: string;
+  checked: boolean;
+  handleSelectStatus: (status: string) => void;
 };
 
-const CustomCheckbox = ({ label }: CustomCheckboxProps) => {
+const CustomCheckbox = ({
+  label,
+  checked,
+  handleSelectStatus,
+}: CustomCheckboxProps) => {
   return (
     <div className="group/item flex items-center relative capitalize">
       <input
         id={label}
         type="checkbox"
-        value=""
+        checked={checked}
+        onChange={() => handleSelectStatus(label)}
         className="peer w-4 h-4 appearance-none bg-indigo-1000 dark:bg-blue-1000 border-[1.5px] border-transparent cursor-pointer rounded-sm group-hover/item:border-purple-1000 checked:bg-purple-1000 dark:checked:bg-purple-1050 checked:border-none transition-colors ease-in-out duration-200"
       />
       <label

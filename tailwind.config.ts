@@ -28,6 +28,13 @@ export default {
         "gray-2000": "#777F98",
         "ghost-white": "#F9FAFE",
       },
+      keyframes: {
+        shimmer: {
+          "100%": {
+            transform: "translateX(100%)",
+          },
+        },
+      },
     },
   },
   plugins: [],

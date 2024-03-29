@@ -9,15 +9,15 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import tailwindStyleUrl from "./styles/tailwind.css";
+import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
+import { HoneypotProvider } from "remix-utils/honeypot/react";
 import faviconUrl from "./assets/favicon.svg";
 import SideNav from "./components/SideNav";
 import LayoutContainer from "./components/ui/LayoutContainer";
-import { honeypot } from "./utils/honeypot.server";
-import { getEnv } from "./utils/env.server";
-import { HoneypotProvider } from "remix-utils/honeypot/react";
+import tailwindStyleUrl from "./styles/tailwind.css";
 import { csrf } from "./utils/csrf.server";
-import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
+import { getEnv } from "./utils/env.server";
+import { honeypot } from "./utils/honeypot.server";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),

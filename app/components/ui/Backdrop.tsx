@@ -6,9 +6,15 @@ const backdropVariant = {
   },
   final: {
     opacity: 0.5,
+    transition: {
+      when: "beforeChildren",
+    },
   },
   exit: {
     opacity: 0,
+    transition: {
+      when: "afterChildren",
+    },
   },
 };
 

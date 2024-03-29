@@ -1,3 +1,4 @@
+import { useSearchParams } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { STATUS_TYPES } from "~/constants/invoices.contants";
@@ -32,19 +33,51 @@ const svgVariant = {
 
 const FilterStatus = () => {
   const [toggleStatusMenu, setToggleStatusMenu] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const ref = useRef(null);
+  const [, setSearchParams] = useSearchParams();
 
   useOutsideClick({ ref, callback: handleClickOutside });
 
   function handleClickOutside(_event: MouseEvent) {
     setToggleStatusMenu(false);
   }
+
   const handleToggleStatusMenu = () =>
     setToggleStatusMenu((prevState) => !prevState);
 
+  const handleSelectStatus = (status: string) => {
+    setSelectedStatus((prevState) => {
+      let newStatuses;
+      if (prevState.includes(status)) {
+        newStatuses = prevState.filter((item) => item !== status);
+      } else {
+        newStatuses = [...prevState, status];
+      }
+
+      const params = new URLSearchParams();
+      newStatuses.forEach((status) => {
+        params.append("status", status);
+      });
+
+      setSearchParams(params, {
+        preventScrollReset: true,
+      });
+
+      return newStatuses;
+    });
+  };
+
   const renderCheckbox = () => {
     return STATUS_TYPES.map((status) => {
-      return <CustomCheckbox key={status} label={status} />;
+      return (
+        <CustomCheckbox
+          key={status}
+          label={status}
+          checked={selectedStatus.includes(status)}
+          handleSelectStatus={handleSelectStatus}
+        />
+      );
     });
   };
 

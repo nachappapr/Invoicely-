@@ -1,6 +1,6 @@
 import { Form } from "@remix-run/react";
-import { AnimatePresence, motion } from "framer-motion";
-import React from "react";
+import { motion } from "framer-motion";
+import React, { Fragment } from "react";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
 import AnimatedLoader from "../ui/AnimatedLoader";
 import Backdrop from "../ui/Backdrop";
@@ -28,7 +28,7 @@ const DeleteModal = ({
   const isPending = useIsFormSubmitting();
 
   return (
-    <AnimatePresence>
+    <Fragment>
       <Backdrop />
       <motion.div
         variants={backdropVariant}
@@ -59,7 +59,7 @@ const DeleteModal = ({
           </div>
         </Card>
       </motion.div>
-    </AnimatePresence>
+    </Fragment>
   );
 };
 

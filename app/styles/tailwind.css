@@ -77,4 +77,9 @@
   .button-edit {
     @apply flex items-center justify-between bg-ghost-white rounded-3xl py-4 px-6  hover:bg-indigo-1000 generic-transition;
   }
+
+  .loader-animation {
+    @apply before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent
+    overflow-hidden relative;
+  }
 }

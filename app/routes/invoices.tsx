@@ -1,7 +1,11 @@
-import { json, type MetaFunction } from "@remix-run/node";
 import {
-  isRouteErrorResponse,
+  json,
+  type DataFunctionArgs,
+  type MetaFunction,
+} from "@remix-run/node";
+import {
   Outlet,
+  isRouteErrorResponse,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
@@ -22,9 +26,15 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async () => {
+export const loader = async ({ request }: DataFunctionArgs) => {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.getAll("status");
+
   const result = await prisma.invoice.findMany({
-    where: { userId: "clu7zzd150000f0a1uu8mp1rr" },
+    where: {
+      userId: "clu7zzd150000f0a1uu8mp1rr",
+      ...(query?.length > 0 ? { status: { in: query } } : {}),
+    },
     select: {
       clientName: true,
       id: true,
