@@ -32,3 +32,7 @@ export const InvoiceSchema = z.object({
     .max(100),
   itemList: z.array(itemSchema).min(1),
 });
+
+export const ThemeSwitcherSchema = z.object({
+  theme: z.enum(["light", "dark"]),
+});

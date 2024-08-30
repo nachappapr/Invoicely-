@@ -5,6 +5,7 @@ import NoInvoice from "~/components/invoice/NoInvoice";
 import LayoutContainer from "~/components/ui/LayoutContainer";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
+import { motion } from "framer-motion";
 
 export async function loader({ params }: DataFunctionArgs) {
   const invoiceId = params.invoice;
@@ -56,10 +57,19 @@ export async function action({ request, params }: DataFunctionArgs) {
 
 const InvoiceDetailPage = () => {
   return (
-    <>
+    <motion.div
+      initial="initialState"
+      animate="animateState"
+      exit="exitState"
+      variants={{
+        initialState: { opacity: 0 },
+        animateState: { opacity: 1 },
+        exitState: {},
+      }}
+    >
       <InvoiceDetailsContainer />;
       <Outlet />
-    </>
+    </motion.div>
   );
 };
 

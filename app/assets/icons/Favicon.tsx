@@ -1,3 +1,4 @@
+import * as React from "react";
 import type { SVGProps } from "react";
 const SvgFavicon = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={28} height={26} {...props}>

@@ -5,3 +5,5 @@ export type InvoiceType = {
   createdAt: string;
   total: number;
 };
+
+export type Theme = "light" | "dark";

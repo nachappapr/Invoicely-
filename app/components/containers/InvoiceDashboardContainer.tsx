@@ -13,7 +13,7 @@ const InvoiceDashboardContainer = ({
 }) => {
   return (
     <LayoutContainer>
-      <div className="flex justify-between items-center">
+      <div className="w-90% md:w-full flex justify-between items-center">
         <div>
           <h1 className="primary-heading ">Invoices</h1>
           <span className="hidden lg:inline-block text-body-two !text-indigo-2000 dark:!text-indigo-1000">
