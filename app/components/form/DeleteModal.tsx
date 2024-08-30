@@ -2,9 +2,9 @@ import { Form } from "@remix-run/react";
 import { motion } from "framer-motion";
 import React, { Fragment } from "react";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
-import AnimatedLoader from "../ui/AnimatedLoader";
-import Backdrop from "../ui/Backdrop";
-import Card from "../ui/Card";
+import AnimatedLoader from "../common/AnimatedLoader";
+import Backdrop from "../common/Backdrop";
+import Card from "../common/Card";
 
 const backdropVariant = {
   initial: { opacity: 0 },

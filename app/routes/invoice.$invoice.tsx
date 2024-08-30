@@ -1,11 +1,12 @@
 import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
 import { Outlet, isRouteErrorResponse, useRouteError } from "@remix-run/react";
+import { motion } from "framer-motion";
 import InvoiceDetailsContainer from "~/components/containers/InvoiceDetailsContainer";
 import NoInvoice from "~/components/invoice/NoInvoice";
-import LayoutContainer from "~/components/ui/LayoutContainer";
+import LayoutContainer from "~/components/common/LayoutContainer";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
-import { motion } from "framer-motion";
+import { toastSessionStorage } from "~/utils/toast.server";
 
 export async function loader({ params }: DataFunctionArgs) {
   const invoiceId = params.invoice;
@@ -29,6 +30,8 @@ export async function action({ request, params }: DataFunctionArgs) {
   const intent = formData.get("intent");
 
   invariantResponse(invoiceId, "Invoice not found", { status: 404 });
+  const cookie = request.headers.get("cookie");
+  const toastCookieSession = await toastSessionStorage.getSession(cookie);
 
   if (intent) {
     if (intent === "delete") {
@@ -36,6 +39,11 @@ export async function action({ request, params }: DataFunctionArgs) {
         where: {
           id: invoiceId,
         },
+      });
+      toastCookieSession.flash("toast", {
+        title: "Invoice deleted",
+        message: "your invoice has been deleted successfully",
+        type: "success",
       });
     }
     if (intent === "paid") {
@@ -49,7 +57,14 @@ export async function action({ request, params }: DataFunctionArgs) {
       });
       return redirect(`/invoice/${invoiceId}`);
     }
-    return redirect("/invoices");
+
+    return redirect("/invoices", {
+      headers: {
+        "Set-Cookie": await toastSessionStorage.commitSession(
+          toastCookieSession
+        ),
+      },
+    });
   }
 
   return null;

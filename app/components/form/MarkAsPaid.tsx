@@ -1,5 +1,5 @@
 import { useFetcher } from "@remix-run/react";
-import AnimatedLoader from "../ui/AnimatedLoader";
+import AnimatedLoader from "../common/AnimatedLoader";
 
 const MarkAsPaid = () => {
   const fetcher = useFetcher();

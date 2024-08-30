@@ -21,7 +21,7 @@ import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import faviconUrl from "./assets/favicon.svg";
 import SideNav from "./components/SideNav";
-import LayoutContainer from "./components/ui/LayoutContainer";
+import LayoutContainer from "./components/common/LayoutContainer";
 import { type Theme } from "./global";
 import { useTheme } from "./hooks/useTheme";
 import tailwindStyleUrl from "./styles/tailwind.css";

@@ -15,8 +15,8 @@ import {
 import StatusCard from "../StatusCard";
 import DeleteModal from "../form/DeleteModal";
 import MarkAsPaid from "../form/MarkAsPaid";
-import Card from "../ui/Card";
-import LayoutContainer from "../ui/LayoutContainer";
+import Card from "../common/Card";
+import LayoutContainer from "../common/LayoutContainer";
 
 const InvoiceDetailsContainer = () => {
   const {

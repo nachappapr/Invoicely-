@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 import SvgLogo from "~/assets/icons/Logo";
 import { type Theme } from "~/global";
 import userAvatarUrl from "../assets/image-avatar.jpg";
-import ThemeSwitcher from "./ui/ThemeSwitcher";
+import ThemeSwitcher from "./common/ThemeSwitcher";
 
 const SideNav = ({ theme }: { theme: Theme }) => {
   return (

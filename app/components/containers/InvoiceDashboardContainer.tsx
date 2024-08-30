@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 import React from "react";
 import { IconPlus } from "~/assets/icons";
 import FilterStatus from "../FilterStatus";
-import LayoutContainer from "../ui/LayoutContainer";
+import LayoutContainer from "../common/LayoutContainer";
 
 const InvoiceDashboardContainer = ({
   totalInvoice,
