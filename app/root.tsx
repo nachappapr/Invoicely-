@@ -28,9 +28,10 @@ import tailwindStyleUrl from "./styles/tailwind.css";
 import { csrf } from "./utils/csrf.server";
 import { getEnv } from "./utils/env.server";
 import { honeypot } from "./utils/honeypot.server";
-import { invariantResponse } from "./utils/misc";
+import { combineHeaders, invariantResponse } from "./utils/misc";
 import { ThemeSwitcherSchema } from "./utils/schema";
 import { getTheme, setTheme } from "./utils/theme.server";
+import { toastSessionStorage } from "./utils/toast.server";
 
 export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
@@ -42,25 +43,39 @@ export async function loader({ request }: DataFunctionArgs) {
   const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
   const honeyProps = honeypot.getInputProps();
   const theme = getTheme(request);
+  const cookie = request.headers.get("cookie");
+  const toastCookieSession = await toastSessionStorage.getSession(cookie);
+
+  const toast = toastCookieSession.get("toast");
+
   return json(
     {
       ENV: getEnv(),
       theme,
       honeyProps,
       csrfToken,
+      toast,
     },
     {
-      headers: csrfCookieHeader
-        ? {
-            "Set-Cookie": csrfCookieHeader,
-          }
-        : {},
+      headers: combineHeaders(
+        csrfCookieHeader
+          ? {
+              "Set-Cookie": csrfCookieHeader,
+            }
+          : null,
+        {
+          "Set-Cookie": await toastSessionStorage.commitSession(
+            toastCookieSession
+          ),
+        }
+      ),
     }
   );
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+
   invariantResponse(
     formData.get("intent") === "update-theme",
     "Invalid intent",
@@ -84,7 +99,6 @@ export async function action({ request }: ActionFunctionArgs) {
       "Set-Cookie": setTheme(submission.value.theme),
     },
   };
-
   return json({ status: "success", submission } as const, responseInit);
 }
 
@@ -96,8 +110,6 @@ export const Document = ({
   theme?: Theme;
 }) => {
   const data = useLoaderData<typeof loader>();
-  const location = useLocation();
-  console.log(location.pathname, "router*****");
 
   return (
     <html lang="en" className={`${theme}`}>
