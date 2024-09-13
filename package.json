@@ -4,14 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "dev": "remix vite:dev",
+    "build": "prisma generate && remix vite:build",
+    "start": "remix-serve ./build/server/index.js",
     "postinstall": "prisma generate",
-    "build": "prisma generate && remix build",
     "icons": "npx @svgr/cli --out-dir app/assets/icons -- app/assets",
-    "icons:watch": "npm-watch icons",
-    "dev:svg": "run-s icons icons:watch",
-    "dev:remix": "remix dev --manual",
-    "dev": "run-p dev:*",
-    "start": "remix-serve ./build/index.js",
     "typecheck": "tsc"
   },
   "watch": {
@@ -27,10 +24,9 @@
     "@conform-to/react": "^0.9.1",
     "@conform-to/zod": "^0.9.1",
     "@prisma/client": "^5.11.0",
-    "@remix-run/css-bundle": "^2.3.0",
-    "@remix-run/node": "^2.3.0",
-    "@remix-run/react": "^2.3.0",
-    "@remix-run/serve": "^2.3.0",
+    "@remix-run/node": "2.12.0",
+    "@remix-run/react": "2.12.0",
+    "@remix-run/serve": "2.12.0",
     "chalk": "^5.3.0",
     "clsx": "^2.1.0",
     "cookie": "^0.6.0",
@@ -46,8 +42,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@remix-run/dev": "^2.3.0",
-    "@remix-run/eslint-config": "^2.3.0",
+    "@remix-run/dev": "2.12.0",
+    "@remix-run/eslint-config": "2.12.0",
     "@svgr/cli": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@svgr/plugin-prettier": "^8.1.0",
@@ -63,7 +59,9 @@
     "postcss": "^8.4.31",
     "prisma": "^5.11.0",
     "tailwindcss": "^3.3.5",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vite": "^5.4.5",
+    "vite-tsconfig-paths": "^5.0.1"
   },
   "engines": {
     "node": ">=18.0.0"

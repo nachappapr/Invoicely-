@@ -1,14 +1,12 @@
 import { parse } from "@conform-to/zod";
-import { cssBundleHref } from "@remix-run/css-bundle";
 import {
   type ActionFunctionArgs,
-  type DataFunctionArgs,
   json,
   type LinksFunction,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -24,7 +22,6 @@ import SideNav from "./components/SideNav";
 import LayoutContainer from "./components/common/LayoutContainer";
 import { type Theme } from "./global";
 import { useTheme } from "./hooks/useTheme";
-import tailwindStyleUrl from "./styles/tailwind.css";
 import { csrf } from "./utils/csrf.server";
 import { getEnv } from "./utils/env.server";
 import { honeypot } from "./utils/honeypot.server";
@@ -32,14 +29,11 @@ import { combineHeaders, invariantResponse } from "./utils/misc";
 import { ThemeSwitcherSchema } from "./utils/schema";
 import { getTheme, setTheme } from "./utils/theme.server";
 import { toastSessionStorage } from "./utils/toast.server";
+import "./styles/tailwind.css";
 
-export const links: LinksFunction = () => [
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
-  { rel: "stylesheet", href: tailwindStyleUrl },
-  { rel: "icon", href: faviconUrl },
-];
+export const links: LinksFunction = () => [{ rel: "icon", href: faviconUrl }];
 
-export async function loader({ request }: DataFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
   const honeyProps = honeypot.getInputProps();
   const theme = getTheme(request);
@@ -124,7 +118,6 @@ export const Document = ({
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
         <script
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(data.ENV)}`,

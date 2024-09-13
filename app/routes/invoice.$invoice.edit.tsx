@@ -1,6 +1,6 @@
 import { conform, list, useFieldList, useForm } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -41,7 +41,7 @@ const formLayoutVaraint = {
   },
 };
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
   invariantResponse(invoiceId, "Invoice not found", { status: 404 });
   const invoice = await prisma.invoice.findUnique({
@@ -55,7 +55,7 @@ export async function loader({ params }: DataFunctionArgs) {
   return json({ invoice }, { status: 200 });
 }
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
   const formData = await request.formData();
   const submission = parse(formData, {

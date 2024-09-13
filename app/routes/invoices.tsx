@@ -1,6 +1,6 @@
 import {
   json,
-  type DataFunctionArgs,
+  type LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
 import {
@@ -26,7 +26,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async ({ request }: DataFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { searchParams } = new URL(request.url);
   const query = searchParams.getAll("status");
 

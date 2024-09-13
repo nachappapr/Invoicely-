@@ -1,4 +1,4 @@
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import { motion } from "framer-motion";
 import InvoiceDetailsContainer from "~/components/containers/InvoiceDetailsContainer";
@@ -8,7 +8,7 @@ import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
 import { toastSessionStorage } from "~/utils/toast.server";
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
   const invoice = await prisma.invoice.findUnique({
     where: {
@@ -24,7 +24,7 @@ export async function loader({ params }: DataFunctionArgs) {
   return json({ invoice }, { status: 200 });
 }
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
   const formData = await request.formData();
   const intent = formData.get("intent");

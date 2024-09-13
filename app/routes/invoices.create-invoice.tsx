@@ -6,7 +6,7 @@ import {
   useForm,
 } from "@conform-to/react";
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
-import { json, redirect, type DataFunctionArgs } from "@remix-run/node";
+import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { formatISO } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
@@ -53,7 +53,7 @@ const formLayoutVaraint = {
   },
 };
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: LoaderFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
