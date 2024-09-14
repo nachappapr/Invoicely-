@@ -1,4 +1,4 @@
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import {
   type ActionFunctionArgs,
   json,
@@ -6,6 +6,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
+  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
@@ -13,6 +14,7 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useRouteError,
 } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
@@ -22,14 +24,18 @@ import SideNav from "./components/SideNav";
 import LayoutContainer from "./components/common/LayoutContainer";
 import { type Theme } from "./global";
 import { useTheme } from "./hooks/useTheme";
+import "./styles/tailwind.css";
 import { csrf } from "./utils/csrf.server";
 import { getEnv } from "./utils/env.server";
 import { honeypot } from "./utils/honeypot.server";
 import { combineHeaders, invariantResponse } from "./utils/misc";
 import { ThemeSwitcherSchema } from "./utils/schema";
 import { getTheme, setTheme } from "./utils/theme.server";
-import { toastSessionStorage } from "./utils/toast.server";
-import "./styles/tailwind.css";
+import { getToast } from "./utils/toast.server";
+import { Toaster } from "./components/ui/toaster";
+import { AlertToast } from "./components/common/Toast";
+import { getUserSession } from "./utils/session.server";
+import { prisma } from "./utils/db.server";
 
 export const links: LinksFunction = () => [{ rel: "icon", href: faviconUrl }];
 
@@ -37,10 +43,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
   const honeyProps = honeypot.getInputProps();
   const theme = getTheme(request);
-  const cookie = request.headers.get("cookie");
-  const toastCookieSession = await toastSessionStorage.getSession(cookie);
+  const { toast, headers } = await getToast(request);
+  const { userId } = await getUserSession(request);
 
-  const toast = toastCookieSession.get("toast");
+  const user = userId
+    ? await prisma.user.findFirst({
+        select: { id: true },
+        where: {
+          id: userId,
+        },
+      })
+    : null;
 
   return json(
     {
@@ -49,6 +62,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       honeyProps,
       csrfToken,
       toast,
+      user,
     },
     {
       headers: combineHeaders(
@@ -57,11 +71,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
               "Set-Cookie": csrfCookieHeader,
             }
           : null,
-        {
-          "Set-Cookie": await toastSessionStorage.commitSession(
-            toastCookieSession
-          ),
-        }
+        headers
       ),
     }
   );
@@ -78,14 +88,12 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   );
 
-  const submission = parse(formData, { schema: ThemeSwitcherSchema });
+  const submission = parseWithZod(formData, { schema: ThemeSwitcherSchema });
 
-  if (submission.intent !== "submit") {
-    return json({ status: "success", submission } as const);
-  }
-
-  if (!submission.value) {
-    return json({ status: "error", submission } as const, { status: 400 });
+  if (submission.status !== "success") {
+    return json({ status: "error", submission: submission.reply() } as const, {
+      status: 400,
+    });
   }
 
   const responseInit = {
@@ -138,6 +146,8 @@ export default function App() {
         <AnimatePresence mode="wait" key={useLocation().pathname}>
           <Document theme={theme}>
             <SideNav theme={theme} />
+            <Toaster />
+            {data.toast && <AlertToast {...data.toast} />}
           </Document>
         </AnimatePresence>
       </HoneypotProvider>
@@ -146,9 +156,27 @@ export default function App() {
 }
 
 export function ErrorBoundary() {
-  return (
-    <Document>
-      <LayoutContainer>Oops! Something went wrong</LayoutContainer>
-    </Document>
-  );
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <LayoutContainer>
+        <h1>
+          {error.status} {error.statusText}
+        </h1>
+        <p>{error.data}</p>
+      </LayoutContainer>
+    );
+  } else if (error instanceof Error) {
+    return (
+      <LayoutContainer>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+        <p>The stack trace is:</p>
+        <pre>{error.stack}</pre>
+      </LayoutContainer>
+    );
+  } else {
+    return <LayoutContainer>Unknown Error</LayoutContainer>;
+  }
 }

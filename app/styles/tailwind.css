@@ -2,10 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --radius: 0.5rem;
+}
+
 @layer base {
   body {
     @apply font-spartan bg-white-1000 dark:bg-blue-2000 transition-all duration-200 ease-in-out;
   }
+
   /* Works on Chrome, Edge, and Safari */
   *::-webkit-scrollbar {
     width: 4px;

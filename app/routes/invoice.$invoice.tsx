@@ -6,7 +6,7 @@ import NoInvoice from "~/components/invoice/NoInvoice";
 import LayoutContainer from "~/components/common/LayoutContainer";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
-import { toastSessionStorage } from "~/utils/toast.server";
+import { redirectWithToast } from "~/utils/toast.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
@@ -30,8 +30,6 @@ export async function action({ request, params }: LoaderFunctionArgs) {
   const intent = formData.get("intent");
 
   invariantResponse(invoiceId, "Invoice not found", { status: 404 });
-  const cookie = request.headers.get("cookie");
-  const toastCookieSession = await toastSessionStorage.getSession(cookie);
 
   if (intent) {
     if (intent === "delete") {
@@ -40,10 +38,10 @@ export async function action({ request, params }: LoaderFunctionArgs) {
           id: invoiceId,
         },
       });
-      toastCookieSession.flash("toast", {
+      throw await redirectWithToast("/invoices", {
         title: "Invoice deleted",
-        message: "your invoice has been deleted successfully",
-        type: "success",
+        description: "Invoice has been deleted successfully",
+        variant: "destructive",
       });
     }
     if (intent === "paid") {
@@ -58,13 +56,7 @@ export async function action({ request, params }: LoaderFunctionArgs) {
       return redirect(`/invoice/${invoiceId}`);
     }
 
-    return redirect("/invoices", {
-      headers: {
-        "Set-Cookie": await toastSessionStorage.commitSession(
-          toastCookieSession
-        ),
-      },
-    });
+    return redirect("/invoices");
   }
 
   return null;

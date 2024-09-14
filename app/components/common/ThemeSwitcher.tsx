@@ -1,5 +1,5 @@
 import { useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { useFetcher } from "@remix-run/react";
 import { IconMoon, IconSun } from "~/assets/icons";
 import { type Theme } from "~/global";
@@ -13,9 +13,9 @@ const ThemeSwitcher = ({ userPreference }: { userPreference?: Theme }) => {
 
   const [form] = useForm({
     id: "theme-switch",
-    lastSubmission: fetcher?.data?.submission,
+    lastResult: fetcher?.data?.submission,
     onValidate({ formData }) {
-      return parse(formData, { schema: ThemeSwitcherSchema });
+      return parseWithZod(formData, { schema: ThemeSwitcherSchema });
     },
   });
 
@@ -23,7 +23,7 @@ const ThemeSwitcher = ({ userPreference }: { userPreference?: Theme }) => {
     return mode === "light" ? <IconMoon /> : <IconSun />;
   };
   return (
-    <fetcher.Form {...form.props} method="post">
+    <fetcher.Form id={form.id} onSubmit={form.onSubmit} method="post">
       <input type="hidden" name="theme" value={nextMode} />
       <button
         type="submit"

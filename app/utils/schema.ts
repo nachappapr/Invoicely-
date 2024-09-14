@@ -23,8 +23,8 @@ export const InvoiceSchema = z.object({
   clientCity: z.string({ required_error: "can't be empty" }).min(3).max(100),
   clientPostalCode: z.string({ required_error: "can't be empty" }).min(1),
   clientCountry: z.string({ required_error: "can't be empty" }).min(3).max(100),
-  invoiceDate: z.string({ required_error: "can't be empty" }),
-  paymentTerms: z.string({ required_error: "can't be empty" }).min(3).max(100),
+  invoiceDate: z.date({ required_error: "can't be empty" }),
+  paymentTerms: z.string({ required_error: "can't be empty" }),
   status: z.string({ required_error: "can't be empty" }).optional(),
   projectDescription: z
     .string({ required_error: "can't be empty" })
@@ -35,4 +35,9 @@ export const InvoiceSchema = z.object({
 
 export const ThemeSwitcherSchema = z.object({
   theme: z.enum(["light", "dark"]),
+});
+
+export const LoginSchema = z.object({
+  email: z.string({ required_error: "Can't be empty" }).email("Invalid email"),
+  password: z.string({ required_error: "Can't be empty" }).min(8),
 });
