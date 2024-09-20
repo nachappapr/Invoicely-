@@ -48,7 +48,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const user = userId
     ? await prisma.user.findFirst({
-        select: { id: true },
+        select: { id: true, email: true },
         where: {
           id: userId,
         },
