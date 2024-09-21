@@ -5,6 +5,7 @@ import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
 import AnimatedLoader from "../common/AnimatedLoader";
 import Backdrop from "../common/Backdrop";
 import Card from "../common/Card";
+import { Button } from "../ui/button";
 
 const backdropVariant = {
   initial: { opacity: 0 },
@@ -40,21 +41,23 @@ const DeleteModal = ({
           <h2 className="secondary-heading">Confirm Deletion</h2>
           <p className="text-body-two text-light mt-4 mb-4">{children}</p>
           <div className="flex items-center justify-end gap-2">
-            <button
-              className="button-edit tertiary-heading-normal !text-indigo-1050"
+            <Button
+              variant="invoice-tertiary"
+              size="invoice-default"
               onClick={onClose}
             >
               Cancel
-            </button>
+            </Button>
             <Form method="post">
-              <button
-                className="button-delete tertiary-heading-normal !text-ghost-white"
+              <Button
+                variant="invoice-delete"
+                size="invoice-default"
                 name="intent"
                 value="delete"
                 disabled={isPending}
               >
                 {isPending ? <AnimatedLoader /> : "Delete"}
-              </button>
+              </Button>
             </Form>
           </div>
         </Card>

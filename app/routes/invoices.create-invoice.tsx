@@ -20,6 +20,7 @@ import { DatePickerConform } from "~/components/form/Calender";
 import FormError from "~/components/form/FormError";
 import StyledInput from "~/components/form/StyledInput";
 import { SelectConform } from "~/components/form/StyledSelect";
+import { Button } from "~/components/ui/button";
 import { PAYMENT_TERMS } from "~/constants/invoices.contants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
 import { validateCSRF } from "~/utils/csrf.server";
@@ -82,7 +83,7 @@ export async function action({ request }: LoaderFunctionArgs) {
           total: item.quantity * item.price,
         })),
       },
-      userId: "clu7zzd150000f0a1uu8mp1rr",
+      userId: "cm1bs5wyg00006jp4z77irwep",
     },
   });
 
@@ -365,23 +366,35 @@ const CreateInvoiceRoute = () => {
           />
 
           <div className="flex justify-between items-center">
-            <button className="editButton" type="button" onClick={handleClick}>
+            <Button
+              variant="invoice-tertiary"
+              size="invoice-default"
+              type="button"
+              onClick={handleClick}
+            >
               discard
-            </button>
+            </Button>
             <div className="flex items-center justify-end gap-2 ">
-              <button
-                className="discardButton"
+              <Button
+                variant="invoice-secondary"
+                size="invoice-default"
                 type="submit"
                 disabled={isPending}
                 name="intent"
                 value="draft"
               >
                 Save as Draft
-              </button>
+              </Button>
 
-              <button className="saveButton" type="submit" disabled={isPending}>
+              <Button
+                variant="invoice-primary"
+                size="invoice-default"
+                className="saveButton"
+                type="submit"
+                disabled={isPending}
+              >
                 {isPending ? <AnimatedLoader /> : "save changes"}
-              </button>
+              </Button>
             </div>
           </div>
         </Form>

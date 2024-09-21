@@ -36,6 +36,7 @@ export async function getUserSession(request: Request) {
   const userId = userSession.get("userId");
   return {
     userId,
+    userSession,
     headers: userId
       ? new Headers({
           "set-cookie": await sessionStorage.commitSession(userSession),
@@ -52,5 +53,12 @@ export async function redirectWithUserSession(
   return redirect(url, {
     ...init,
     headers: combineHeaders(init?.headers, await createUserSession(userInput)),
+  });
+}
+
+export async function destroyUserSession() {
+  const userSession = await sessionStorage.getSession();
+  return new Headers({
+    "set-cookie": await sessionStorage.destroySession(userSession),
   });
 }

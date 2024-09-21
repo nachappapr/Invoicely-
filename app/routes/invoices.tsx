@@ -32,7 +32,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const result = await prisma.invoice.findMany({
     where: {
-      userId: "clu7zzd150000f0a1uu8mp1rr",
+      userId: "cm1bs5wyg00006jp4z77irwep",
       ...(query?.length > 0 ? { status: { in: query } } : {}),
     },
     select: {

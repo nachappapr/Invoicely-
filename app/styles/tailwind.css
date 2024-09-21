@@ -47,18 +47,6 @@
     @apply text-[0.75rem] font-normal text-black-1000 dark:text-white-1000;
   }
 
-  .saveButton {
-    @apply capitalize py-4 px-6 tertiary-heading-normal bg-purple-1000 !text-white-1000 rounded-full hover:bg-purple-1050 generic-transition;
-  }
-
-  .discardButton {
-    @apply capitalize py-4 px-6 tertiary-heading-normal bg-gray-1050 !text-indigo-2000 dark:!text-indigo-1000 rounded-full hover:bg-black-1000 hover:dark:bg-blue-1000 generic-transition;
-  }
-
-  .editButton {
-    @apply button-edit tertiary-heading-normal !text-indigo-1050 capitalize;
-  }
-
   .generic-transition {
     @apply transition-all duration-200 ease-in-out;
   }
@@ -69,18 +57,6 @@
 
   .text-light {
     @apply text-indigo-1050 dark:text-indigo-1000;
-  }
-
-  .button-primary {
-    @apply flex items-center justify-between bg-purple-1000  rounded-3xl py-4 px-6 hover:bg-purple-1050 generic-transition;
-  }
-
-  .button-delete {
-    @apply flex items-center justify-between bg-red-1000 rounded-3xl py-4 px-6  hover:bg-red-1050 generic-transition;
-  }
-
-  .button-edit {
-    @apply flex items-center justify-between bg-ghost-white rounded-3xl py-4 px-6  hover:bg-indigo-1000 generic-transition;
   }
 
   .loader-animation {

@@ -3,6 +3,7 @@ import React from "react";
 import { IconPlus } from "~/assets/icons";
 import FilterStatus from "../FilterStatus";
 import LayoutContainer from "../common/LayoutContainer";
+import { Button } from "../ui/button";
 
 const InvoiceDashboardContainer = ({
   totalInvoice,
@@ -26,7 +27,11 @@ const InvoiceDashboardContainer = ({
         <div className="flex items-center gap-4 lg:gap-10">
           <FilterStatus />
           <Link to="./create-invoice">
-            <button className="flex items-center justify-between gap-1  bg-purple-1000 pl-2 pr-4 h-12 rounded-3xl lg:gap-2 hover:bg-purple-1050 generic-transition">
+            <Button
+              variant="invoice-primary"
+              size="invoice-default"
+              className="gap-1 pl-2 pr-4 h-12 lg:gap-2"
+            >
               <div className="h-8 w-8 bg-white flex items-center justify-center rounded-full">
                 <IconPlus />
               </div>
@@ -34,7 +39,7 @@ const InvoiceDashboardContainer = ({
                 <span>new </span>
                 <span className="hidden lg:inline-block">invoice</span>
               </div>
-            </button>
+            </Button>
           </Link>
         </div>
       </div>

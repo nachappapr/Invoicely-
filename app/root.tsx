@@ -4,6 +4,7 @@ import {
   json,
   type LinksFunction,
   type LoaderFunctionArgs,
+  redirect,
 } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -34,8 +35,9 @@ import { getTheme, setTheme } from "./utils/theme.server";
 import { getToast } from "./utils/toast.server";
 import { Toaster } from "./components/ui/toaster";
 import { AlertToast } from "./components/common/Toast";
-import { getUserSession } from "./utils/session.server";
+import { getUserSession, sessionStorage } from "./utils/session.server";
 import { prisma } from "./utils/db.server";
+import LogoutTimer from "./components/form/LogoutTimer";
 
 export const links: LinksFunction = () => [{ rel: "icon", href: faviconUrl }];
 
@@ -44,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const honeyProps = honeypot.getInputProps();
   const theme = getTheme(request);
   const { toast, headers } = await getToast(request);
-  const { userId } = await getUserSession(request);
+  const { userId, userSession } = await getUserSession(request);
 
   const user = userId
     ? await prisma.user.findFirst({
@@ -54,6 +56,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
         },
       })
     : null;
+
+  if (userId && !user) {
+    throw redirect("/auth/login", {
+      headers: {
+        "set-cookie": await sessionStorage.destroySession(userSession),
+      },
+    });
+  }
 
   return json(
     {
@@ -139,6 +149,7 @@ export const Document = ({
 export default function App() {
   const data = useLoaderData<typeof loader>();
   const theme = useTheme();
+  const isLoggedInUser = data.user ? true : false;
 
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
@@ -148,6 +159,7 @@ export default function App() {
             <SideNav theme={theme} />
             <Toaster />
             {data.toast && <AlertToast {...data.toast} />}
+            {isLoggedInUser ? <LogoutTimer /> : null}
           </Document>
         </AnimatePresence>
       </HoneypotProvider>

@@ -13,10 +13,11 @@ import {
   getTotals,
 } from "~/utils/misc";
 import StatusCard from "../StatusCard";
-import DeleteModal from "../form/DeleteModal";
-import MarkAsPaid from "../form/MarkAsPaid";
 import Card from "../common/Card";
 import LayoutContainer from "../common/LayoutContainer";
+import DeleteModal from "../form/DeleteModal";
+import MarkAsPaid from "../form/MarkAsPaid";
+import { Button } from "../ui/button";
 
 const InvoiceDetailsContainer = () => {
   const {
@@ -98,15 +99,22 @@ const InvoiceDetailsContainer = () => {
           </div>
           <div className="hidden md:flex gap-2">
             <Link to="./edit">
-              <button className="editButton">Edit</button>
+              <Button
+                variant="invoice-tertiary"
+                size="invoice-default"
+                className="editButton"
+              >
+                Edit
+              </Button>
             </Link>
 
-            <button
-              className="button-delete tertiary-heading-normal !text-ghost-white"
+            <Button
+              variant="invoice-delete"
+              size="invoice-default"
               onClick={openDeleteModal}
             >
               Delete
-            </button>
+            </Button>
             <MarkAsPaid />
           </div>
         </Card>

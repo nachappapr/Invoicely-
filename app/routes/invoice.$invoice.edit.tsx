@@ -20,6 +20,7 @@ import { DatePickerConform } from "~/components/form/Calender";
 import FormError from "~/components/form/FormError";
 import StyledInput from "~/components/form/StyledInput";
 import { SelectConform } from "~/components/form/StyledSelect";
+import { Button } from "~/components/ui/button";
 import { PAYMENT_TERMS, STATUS_TYPES } from "~/constants/invoices.contants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
 import { prisma } from "~/utils/db.server";
@@ -388,16 +389,22 @@ const EditInvoice = () => {
             invoiceItemError={fields.itemList.errors}
           />
           <div className="flex justify-end gap-2 ">
-            <button
-              className="discardButton"
+            <Button
+              variant="invoice-secondary"
+              size="invoice-default"
               type="button"
               onClick={handleClick}
             >
               cancel
-            </button>
-            <button className="saveButton" type="submit" disabled={isPending}>
+            </Button>
+            <Button
+              variant="invoice-primary"
+              size="invoice-default"
+              type="submit"
+              disabled={isPending}
+            >
               {isPending ? <AnimatedLoader /> : "save changes"}
-            </button>
+            </Button>
           </div>
         </Form>
       </motion.div>
