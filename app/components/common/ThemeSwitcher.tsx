@@ -5,6 +5,7 @@ import { IconMoon, IconSun } from "~/assets/icons";
 import { type Theme } from "~/global";
 import { type action } from "~/root";
 import { ThemeSwitcherSchema } from "~/utils/schema";
+import { Button } from "../ui/button";
 
 const ThemeSwitcher = ({ userPreference }: { userPreference?: Theme }) => {
   const fetcher = useFetcher<typeof action>();
@@ -25,14 +26,15 @@ const ThemeSwitcher = ({ userPreference }: { userPreference?: Theme }) => {
   return (
     <fetcher.Form id={form.id} onSubmit={form.onSubmit} method="post">
       <input type="hidden" name="theme" value={nextMode} />
-      <button
+      <Button
         type="submit"
-        className="flex-4 bg-transparent"
+        variant="ghost"
+        className="flex-4 hover:!bg-transparent"
         name="intent"
         value="update-theme"
       >
         {renderIcon()}
-      </button>
+      </Button>
     </fetcher.Form>
   );
 };

@@ -84,10 +84,13 @@ const InvoiceDetailsContainer = () => {
       <div className="mb-32">
         <div className="mb-7 md:mb-8">
           <Link to={"../invoices"}>
-            <button className="button-back tertiary-heading-normal flex items-center gap-2">
+            <Button
+              variant="link"
+              className="tertiary-heading-normal flex items-center gap-2"
+            >
               <IconArrowLeft />
               Go Back
-            </button>
+            </Button>
           </Link>
         </div>
         <Card className="flex gap-4">
@@ -191,23 +194,25 @@ const InvoiceDetailsContainer = () => {
         </Card>
         <div className="fixed bottom-0 left-0 right-0 md:hidden">
           <Card className="flex flex-row justify-between items-center w-full">
-            <button className="button-edit tertiary-heading-normal !text-indigo-1050">
+            <Button variant="invoice-tertiary" size="invoice-default">
               Edit
-            </button>
-            <button
-              className="button-delete tertiary-heading-normal !text-ghost-white"
+            </Button>
+            <Button
+              variant="invoice-delete"
+              size="invoice-default"
               onClick={openDeleteModal}
             >
               Delete
-            </button>
+            </Button>
             <Form method="post">
-              <button
-                className="button-primary tertiary-heading-normal !text-ghost-white"
+              <Button
+                variant="invoice-primary"
+                size="invoice-default"
                 name="intent"
                 value="paid"
               >
                 Mark as Paid
-              </button>
+              </Button>
             </Form>
           </Card>
         </div>

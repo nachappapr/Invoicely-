@@ -12,17 +12,17 @@ const CheckboxLabel = ({
   htmlFor,
 }: StyledCheckboxProps) => {
   return (
-    <div className="items-top flex space-x-2">
+    <div className="items-top flex">
       {children}
-      <div className="grid gap-1.5 leading-none">
+      <div className="grid gap-1.5 leading-none ml-2">
         <label
           htmlFor={htmlFor}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-light"
         >
           {label}
         </label>
         {privacyText ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-light text-muted-foreground">
             You agree to our Terms of Service and Privacy Policy.
           </p>
         ) : null}

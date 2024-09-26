@@ -40,7 +40,6 @@ export const ThemeSwitcherSchema = z.object({
 const EmailSchema = z
   .string({ required_error: "Can't be empty" })
   .email("Invalid email")
-  .min(3, "Email is too short")
   .max(100, "Email is too long")
   .transform((value) => value.toLowerCase());
 

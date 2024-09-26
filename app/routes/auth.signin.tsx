@@ -2,19 +2,18 @@ import { getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import StyledInput from "~/components/form/StyledInput";
-import { SignInSchema } from "~/utils/schema";
-import { prisma } from "~/utils/db.server";
 import { z } from "zod";
-import { sessionStorage } from "~/utils/session.server";
-import ErrorMessage from "~/components/form/ErrorMessage";
-import { comparePassword, getExpirationTime } from "~/utils/auth.server";
-import CheckboxLabel from "~/components/form/StyledCheckbox";
-import { ConformCheckbox } from "~/components/form/ConformCheckbox";
-import LayoutContainer from "~/components/common/LayoutContainer";
-import { InvoiceLogin } from "~/assets/icons";
 import fallbackImgSrc from "~/assets/login-background.jpg";
+import LayoutContainer from "~/components/common/LayoutContainer";
+import { ConformCheckbox } from "~/components/form/ConformCheckbox";
+import ErrorMessage from "~/components/form/ErrorMessage";
+import CheckboxLabel from "~/components/form/StyledCheckbox";
+import StyledInput from "~/components/form/StyledInput";
+import { Button } from "~/components/ui/button";
+import { comparePassword, getExpirationTime } from "~/utils/auth.server";
+import { prisma } from "~/utils/db.server";
+import { SignInSchema } from "~/utils/schema";
+import { sessionStorage } from "~/utils/session.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -92,35 +91,42 @@ const SignInPage = () => {
     shouldRevalidate: "onInput",
   });
 
-  const loginErrors = Object.entries(form.allErrors).map(([_, value]) => {
-    return value.flat().join(", ");
-  });
+  const loginErrors = form.errors;
 
   return (
     <LayoutContainer>
-      <div className="flex p-4 bg-white dark:bg-blue-1000 rounded-lg">
-        <div className="max-w-lg aspect-auto object-cover">
-          <img
-            className="w-full rounded-md"
-            alt="A puppy sleeping on it's back with it's mouth slightly open"
-            src={fallbackImgSrc}
-          />
-        </div>
-        <div className="w-full p-8">
+      <div className="flex md:p-4 bg-white dark:bg-blue-1000 rounded-lg">
+        <div
+          className="hidden md:block first-line:marker:max-w-xl w-full aspect-auto bg-cover bg-center bg-no-repeat rounded-md"
+          style={{
+            backgroundImage: `url(${fallbackImgSrc})`,
+            filter: "grayscale(100%)",
+          }}
+        />
+        <div className="w-full p-4 md:p-8">
           <div className="flex items-center gap-1 justify-end mb-10">
             <p className="tertiary-heading-normal text-light">
               Don't have an account?
             </p>
             <Link to="/auth/signup">
-              <Button className="discardButton">Sign up</Button>
+              <Button variant="invoice-primary">Sign up</Button>
             </Link>
           </div>
           <div className="mb-4">
-            <h4 className="secondary-heading text-center">
-              Sign in to Invoicely
+            <h4 className="secondary-heading text-center flex gap-1 items-center justify-center mb-2">
+              <span className="bg-[linear-gradient(to_right,#0C0E16,#0C0E1660)] dark:bg-[linear-gradient(to_right,#F8F8FB,#F8F8FB60)] !text-transparent bg-clip-text">
+                Sign in to
+              </span>
+              <span className=" bg-[linear-gradient(to_right,#7C5DFA,#7C5DFA80)] !text-transparent bg-clip-text">
+                Invoicely
+              </span>
             </h4>
-            <p className="max-w-sm text-center text-body-two">
-              Welcome to Invoicely, please enter your login details
+            <p className="max-w-sm mx-auto text-center text-body-two text-light !font-[500] flex flex-col justify-center leading-4">
+              <span>Welcome to Invoicely! We're excited to have you back.</span>
+              <span>
+                Please enter your login details to access your account and
+                manage your invoices effortlessly.
+              </span>
             </p>
           </div>
           <Form
@@ -146,13 +152,21 @@ const SignInPage = () => {
                 type: "password",
               })}
             />
-            <CheckboxLabel label="Remember me" htmlFor={fields.remember.id}>
-              <ConformCheckbox meta={fields.remember} />
-            </CheckboxLabel>
+            <div className="flex justify-between items-center gap-1">
+              <CheckboxLabel label="Remember me" htmlFor={fields.remember.id}>
+                <ConformCheckbox meta={fields.remember} />
+              </CheckboxLabel>
+              <Link
+                to="/auth/forgot-password"
+                className=" text-purple-1000 text-sm font-bold"
+              >
+                forgot the password?
+              </Link>
+            </div>
             <ErrorMessage errorId={form.errorId} message={loginErrors} />
-            <button type="submit" className="saveButton">
+            <Button variant="invoice-primary" type="submit">
               Login
-            </button>
+            </Button>
           </Form>
         </div>
       </div>

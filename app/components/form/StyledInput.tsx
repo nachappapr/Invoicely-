@@ -17,7 +17,7 @@ const StyledInput = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     const renderError = () => {
-      if (!showErrorMessages || !error?.length) return null;
+      if (!error?.length) return null;
       return <ErrorMessage message={error} errorId={errorId} />;
     };
 

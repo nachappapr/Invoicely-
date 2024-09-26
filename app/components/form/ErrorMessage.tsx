@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 type ErrorMessageProps = {
   message?: string[];
   errorId?: string;
@@ -8,7 +10,7 @@ const ErrorMessage = ({ message, errorId }: ErrorMessageProps) => {
     <div
       key={index}
       id={errorId}
-      className="error-text first-letter:capitalize hidden md:block"
+      className={clsx(`error-text first-letter:capitalize `)}
     >
       {msg}
     </div>

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { STATUS_TYPES } from "~/constants/invoices.contants";
 import useOutsideClick from "~/hooks/useOutsideClick";
 import CustomCheckbox from "./form/CustomCheckbox";
+import { Button } from "./ui/button";
 
 /**
  *  start of animation variants
@@ -103,8 +104,9 @@ const FilterStatus = () => {
 
   return (
     <div className="relative" ref={ref}>
-      <button
-        className="flex items-center gap-2"
+      <Button
+        className="hover:!bg-transparent flex items-center gap-2"
+        variant="ghost"
         onClick={handleToggleStatusMenu}
       >
         <h4 className="tertiary-heading-normal first-letter:capitalize">
@@ -125,7 +127,7 @@ const FilterStatus = () => {
             d="m1 1 4.228 4.228L9.456 1"
           />
         </motion.svg>
-      </button>
+      </Button>
       {renderStatusMenu()}
     </div>
   );
