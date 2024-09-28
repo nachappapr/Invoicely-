@@ -3,11 +3,13 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   Form,
+  isRouteErrorResponse,
   useActionData,
   useLoaderData,
   useNavigate,
   useNavigation,
   useParams,
+  useRouteError,
 } from "@remix-run/react";
 import { formatISO } from "date-fns";
 import { motion } from "framer-motion";
@@ -16,13 +18,22 @@ import SvgIconDelete from "~/assets/icons/IconDelete";
 import SvgIconPlus from "~/assets/icons/IconPlus";
 import AnimatedLoader from "~/components/common/AnimatedLoader";
 import Backdrop from "~/components/common/Backdrop";
+import LayoutContainer from "~/components/common/LayoutContainer";
 import { DatePickerConform } from "~/components/form/Calender";
 import FormError from "~/components/form/FormError";
 import StyledInput from "~/components/form/StyledInput";
 import { SelectConform } from "~/components/form/StyledSelect";
+import NoInvoice from "~/components/invoice/NoInvoice";
 import { Button } from "~/components/ui/button";
-import { PAYMENT_TERMS, STATUS_TYPES } from "~/constants/invoices.contants";
+import {
+  END_POINTS,
+  ERROR_MESSAGES,
+  ERROR_DESCRIPTIONS,
+  PAYMENT_TERMS,
+  STATUS_TYPES,
+} from "~/constants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
+import { requireUser } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
 import { InvoiceSchema } from "~/utils/schema";
@@ -41,9 +52,10 @@ const formLayoutVaraint = {
   },
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
-  invariantResponse(invoiceId, "Invoice not found", { status: 404 });
+  const user = await requireUser(request);
+
   const invoice = await prisma.invoice.findUnique({
     where: {
       id: invoiceId,
@@ -52,11 +64,34 @@ export async function loader({ params }: LoaderFunctionArgs) {
       items: true,
     },
   });
+
+  invariantResponse(invoice, ERROR_MESSAGES.INVOICE_NOT_FOUND, { status: 404 });
+
+  invariantResponse(
+    user.id === invoice?.userId,
+    ERROR_MESSAGES.NOT_AUTHORIZED,
+    {
+      status: 403,
+    }
+  );
+
   return json({ invoice }, { status: 200 });
 }
 
 export async function action({ request, params }: LoaderFunctionArgs) {
+  const user = await requireUser(request);
   const invoiceId = params.invoice;
+
+  const selectedInvoice = await prisma.invoice.findFirst({
+    where: { id: invoiceId },
+  });
+
+  invariantResponse(
+    user.id === selectedInvoice?.userId,
+    ERROR_MESSAGES.NOT_AUTHORIZED,
+    { status: 403 }
+  );
+
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
     schema: InvoiceSchema,
@@ -73,6 +108,7 @@ export async function action({ request, params }: LoaderFunctionArgs) {
   await prisma.invoice.update({
     where: {
       id: invoiceId,
+      userId: selectedInvoice.userId,
     },
     data: {
       ...invoice,
@@ -89,7 +125,7 @@ export async function action({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  return redirect(`/invoice/${invoiceId}`);
+  return redirect(`${END_POINTS.INVOICE}/${invoiceId}`);
 }
 
 const EditInvoice = () => {
@@ -395,7 +431,7 @@ const EditInvoice = () => {
               type="button"
               onClick={handleClick}
             >
-              cancel
+              Cancel
             </Button>
             <Button
               variant="invoice-primary"
@@ -403,7 +439,7 @@ const EditInvoice = () => {
               type="submit"
               disabled={isPending}
             >
-              {isPending ? <AnimatedLoader /> : "save changes"}
+              {isPending ? <AnimatedLoader /> : "Save Changes"}
             </Button>
           </div>
         </Form>
@@ -411,5 +447,28 @@ const EditInvoice = () => {
     </div>
   );
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  let errorTitle: string;
+
+  if (isRouteErrorResponse(error)) {
+    errorTitle = error.data ? error.data : "Something went wrong";
+  } else {
+    errorTitle = "Opps! Something went wrong";
+  }
+
+  return (
+    <LayoutContainer>
+      <NoInvoice
+        title={errorTitle}
+        description={
+          ERROR_DESCRIPTIONS[errorTitle] ??
+          ERROR_DESCRIPTIONS[ERROR_MESSAGES.SOMETHING_WENT_WRONG]
+        }
+      />
+    </LayoutContainer>
+  );
+}
 
 export default EditInvoice;

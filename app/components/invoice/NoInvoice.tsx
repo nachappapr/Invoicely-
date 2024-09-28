@@ -8,11 +8,11 @@ type NoInvoiceProps = {
 const NoInvoice = ({ title, description }: NoInvoiceProps) => {
   const renderDescription = () => {
     return description ? (
-      <p className="text-body-one max-w-[200px] text-center mt-6 leading-none !text-indigo-2000 dark:!text-indigo-1000 first-letter:capitalize">
+      <p className="text-body-one max-w-md mx-auto text-center mt-6 leading-none !text-indigo-2000 dark:!text-indigo-1000 first-letter:capitalize">
         {description}
       </p>
     ) : (
-      <p className="text-body-one max-w-[200px] text-center mt-6 leading-none !text-indigo-2000 dark:!text-indigo-1000 first-letter:capitalize">
+      <p className="text-body-one max-w-md mx-auto text-center mt-6 leading-none !text-indigo-2000 dark:!text-indigo-1000 first-letter:capitalize">
         Create an invoice by clicking the &nbsp;
         <strong className="tertiary-heading-normal !text-indigo-2000 dark:!text-indigo-1000">
           New Invoice

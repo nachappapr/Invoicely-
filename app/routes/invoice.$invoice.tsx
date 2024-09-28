@@ -1,15 +1,18 @@
 import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import { motion } from "framer-motion";
+import LayoutContainer from "~/components/common/LayoutContainer";
 import InvoiceDetailsContainer from "~/components/containers/InvoiceDetailsContainer";
 import NoInvoice from "~/components/invoice/NoInvoice";
-import LayoutContainer from "~/components/common/LayoutContainer";
+import { END_POINTS, ERROR_DESCRIPTIONS, ERROR_MESSAGES } from "~/constants";
+import { requireUser } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
 import { redirectWithToast } from "~/utils/toast.server";
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
+  const user = await requireUser(request);
   const invoice = await prisma.invoice.findUnique({
     where: {
       id: invoiceId,
@@ -19,7 +22,15 @@ export async function loader({ params }: LoaderFunctionArgs) {
     },
   });
 
-  invariantResponse(invoice, "Invoice not found", { status: 404 });
+  invariantResponse(invoice, ERROR_MESSAGES.INVOICE_NOT_FOUND, { status: 404 });
+
+  invariantResponse(
+    invoice?.userId === user.id,
+    ERROR_MESSAGES.NOT_AUTHORIZED,
+    {
+      status: 403,
+    }
+  );
 
   return json({ invoice }, { status: 200 });
 }
@@ -28,8 +39,23 @@ export async function action({ request, params }: LoaderFunctionArgs) {
   const invoiceId = params.invoice;
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const user = await requireUser(request);
+  const selectedInvoice = await prisma.invoice.findFirst({
+    select: { user: { select: { id: true, username: true } } },
+    where: {
+      id: invoiceId,
+    },
+  });
 
-  invariantResponse(invoiceId, "Invoice not found", { status: 404 });
+  invariantResponse(selectedInvoice, ERROR_MESSAGES.INVOICE_NOT_FOUND, {
+    status: 404,
+  });
+
+  invariantResponse(
+    user.id === selectedInvoice?.user.id,
+    ERROR_MESSAGES.NOT_AUTHORIZED,
+    { status: 403 }
+  );
 
   if (intent) {
     if (intent === "delete") {
@@ -38,9 +64,9 @@ export async function action({ request, params }: LoaderFunctionArgs) {
           id: invoiceId,
         },
       });
-      throw await redirectWithToast("/invoices", {
-        title: "Invoice deleted",
-        description: "Invoice has been deleted successfully",
+      throw await redirectWithToast(END_POINTS.HOME, {
+        title: ERROR_MESSAGES.INVOICE_DELETED,
+        description: ERROR_DESCRIPTIONS[ERROR_MESSAGES.INVOICE_DELETED],
         variant: "destructive",
       });
     }
@@ -53,10 +79,10 @@ export async function action({ request, params }: LoaderFunctionArgs) {
           status: "paid",
         },
       });
-      return redirect(`/invoice/${invoiceId}`);
+      return redirect(`${END_POINTS.INVOICE}/${invoiceId}`);
     }
 
-    return redirect("/invoices");
+    return redirect(END_POINTS.HOME);
   }
 
   return null;
@@ -74,7 +100,8 @@ const InvoiceDetailPage = () => {
         exitState: {},
       }}
     >
-      <InvoiceDetailsContainer />;
+      <InvoiceDetailsContainer />
+
       <Outlet />
     </motion.div>
   );
@@ -85,14 +112,20 @@ export function ErrorBoundary() {
   let errorTitle: string;
 
   if (isRouteErrorResponse(error)) {
-    errorTitle = error.status === 404 ? "Not Found" : "Something went wrong";
+    errorTitle = error.data ? error.data : ERROR_MESSAGES.SOMETHING_WENT_WRONG;
   } else {
     errorTitle = "Opps! Something went wrong";
   }
 
   return (
     <LayoutContainer>
-      <NoInvoice title={errorTitle} description="please check in sometime ✈️" />
+      <NoInvoice
+        title={errorTitle}
+        description={
+          ERROR_DESCRIPTIONS[errorTitle] ??
+          ERROR_DESCRIPTIONS[ERROR_MESSAGES.SOMETHING_WENT_WRONG]
+        }
+      />
     </LayoutContainer>
   );
 }

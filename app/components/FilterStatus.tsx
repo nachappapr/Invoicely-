@@ -1,7 +1,7 @@
 import { useSearchParams } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
-import { STATUS_TYPES } from "~/constants/invoices.contants";
+import { STATUS_TYPES } from "~/constants";
 import useOutsideClick from "~/hooks/useOutsideClick";
 import CustomCheckbox from "./form/CustomCheckbox";
 import { Button } from "./ui/button";
@@ -110,7 +110,8 @@ const FilterStatus = () => {
         onClick={handleToggleStatusMenu}
       >
         <h4 className="tertiary-heading-normal first-letter:capitalize">
-          filter by status
+          <span className="hidden md:block">filter by status</span>
+          <span className="md:hidden">filter</span>
         </h4>
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { STATUS_COLOR } from "~/constants/invoices.contants";
+import { STATUS_COLOR } from "~/constants";
 
 const StatusCard = ({ status }: { status: "draft" | "pending" | "paid" }) => {
   return (

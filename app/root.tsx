@@ -4,7 +4,6 @@ import {
   json,
   type LinksFunction,
   type LoaderFunctionArgs,
-  redirect,
 } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -15,6 +14,7 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useMatches,
   useRouteError,
 } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
@@ -23,21 +23,21 @@ import { HoneypotProvider } from "remix-utils/honeypot/react";
 import faviconUrl from "./assets/favicon.svg";
 import SideNav from "./components/SideNav";
 import LayoutContainer from "./components/common/LayoutContainer";
+import { AlertToast } from "./components/common/Toast";
+import LogoutTimer from "./components/form/LogoutTimer";
+import { Toaster } from "./components/ui/toaster";
 import { type Theme } from "./global";
 import { useTheme } from "./hooks/useTheme";
 import "./styles/tailwind.css";
+import { getUserId } from "./utils/auth.server";
 import { csrf } from "./utils/csrf.server";
+import { prisma } from "./utils/db.server";
 import { getEnv } from "./utils/env.server";
 import { honeypot } from "./utils/honeypot.server";
 import { combineHeaders, invariantResponse } from "./utils/misc";
 import { ThemeSwitcherSchema } from "./utils/schema";
 import { getTheme, setTheme } from "./utils/theme.server";
 import { getToast } from "./utils/toast.server";
-import { Toaster } from "./components/ui/toaster";
-import { AlertToast } from "./components/common/Toast";
-import { getUserSession, sessionStorage } from "./utils/session.server";
-import { prisma } from "./utils/db.server";
-import LogoutTimer from "./components/form/LogoutTimer";
 
 export const links: LinksFunction = () => [{ rel: "icon", href: faviconUrl }];
 
@@ -46,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const honeyProps = honeypot.getInputProps();
   const theme = getTheme(request);
   const { toast, headers } = await getToast(request);
-  const { userId, userSession } = await getUserSession(request);
+  const userId = await getUserId(request);
 
   const user = userId
     ? await prisma.user.findFirst({
@@ -56,14 +56,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         },
       })
     : null;
-
-  if (userId && !user) {
-    throw redirect("/auth/login", {
-      headers: {
-        "set-cookie": await sessionStorage.destroySession(userSession),
-      },
-    });
-  }
 
   return json(
     {
@@ -150,13 +142,17 @@ export default function App() {
   const data = useLoaderData<typeof loader>();
   const theme = useTheme();
   const isLoggedInUser = data.user ? true : false;
+  const matcher = useMatches();
+  const isAuthPage = matcher.some((match) =>
+    match.pathname.startsWith("/auth")
+  );
 
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
       <HoneypotProvider {...data.honeyProps}>
         <AnimatePresence mode="wait" key={useLocation().pathname}>
           <Document theme={theme}>
-            <SideNav theme={theme} />
+            {isAuthPage ? null : <SideNav theme={theme} />}
             <Toaster />
             {data.toast && <AlertToast {...data.toast} />}
             {isLoggedInUser ? <LogoutTimer /> : null}

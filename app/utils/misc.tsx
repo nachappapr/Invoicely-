@@ -1,4 +1,4 @@
-import { PAYMENT_TERMS } from "~/constants/invoices.contants";
+import { PAYMENT_TERMS } from "~/constants";
 
 /**
  * Throws an error if the given condition is false.

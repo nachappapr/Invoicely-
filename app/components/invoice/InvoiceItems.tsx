@@ -27,7 +27,11 @@ const InvoiceItems = ({ invoices }: InvoiceItemsProps) => {
     >
       {invoices.map((invoice) => {
         return (
-          <Link to={`/invoice/${invoice.id}`} key={invoice.id}>
+          <Link
+            to={`/invoice/${invoice.id}`}
+            key={invoice.id}
+            prefetch="intent"
+          >
             <InvoiceItem {...invoice} />
           </Link>
         );

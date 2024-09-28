@@ -2,10 +2,7 @@ import { Form, Link, useLoaderData } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, useState } from "react";
 import { IconArrowLeft } from "~/assets/icons";
-import type {
-  PAYMENT_TERMS,
-  STATUS_TYPES,
-} from "~/constants/invoices.contants";
+import type { PAYMENT_TERMS, STATUS_TYPES } from "~/constants";
 import { type loader } from "~/routes/invoice.$invoice";
 import {
   addDaysToPaymentDate,

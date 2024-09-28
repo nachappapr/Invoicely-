@@ -7,11 +7,15 @@ import {
   Outlet,
   isRouteErrorResponse,
   useLoaderData,
+  useNavigation,
   useRouteError,
 } from "@remix-run/react";
 import InvoiceDashboardContainer from "~/components/containers/InvoiceDashboardContainer";
 import InvoiceItems from "~/components/invoice/InvoiceItems";
+import InvoiceItemsSkeleton from "~/components/invoice/InvoiceItemsSkeleton";
 import NoInvoice from "~/components/invoice/NoInvoice";
+import { ERROR_DESCRIPTIONS, ERROR_MESSAGES } from "~/constants";
+import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
 
@@ -29,10 +33,11 @@ export const meta: MetaFunction = () => {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { searchParams } = new URL(request.url);
   const query = searchParams.getAll("status");
+  const userId = await requireUserId(request);
 
   const result = await prisma.invoice.findMany({
     where: {
-      userId: "cm1bs5wyg00006jp4z77irwep",
+      userId,
       ...(query?.length > 0 ? { status: { in: query } } : {}),
     },
     select: {
@@ -48,7 +53,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     },
   });
 
-  invariantResponse(result, "Failed to fetch invoices", { status: 400 });
+  invariantResponse(result, ERROR_MESSAGES.NO_INVOICES_FOUND, { status: 400 });
 
   const invoices = result.map((invoice) => {
     const total = invoice.items.reduce(
@@ -69,11 +74,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 const Invoices = () => {
   const { invoices } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+
+  const renderInvoiceItem = () => {
+    if (isLoading) return <InvoiceItemsSkeleton />;
+    if (invoices?.length === 0) return <NoInvoice />;
+    return <InvoiceItems invoices={invoices} />;
+  };
 
   return (
-    <InvoiceDashboardContainer totalInvoice={invoices?.length ?? 0}>
-      {invoices?.length === 0 && <NoInvoice />}
-      <InvoiceItems invoices={invoices} />
+    <InvoiceDashboardContainer
+      totalInvoice={invoices?.length ?? 0}
+      isLoading={isLoading}
+    >
+      {renderInvoiceItem()}
       <Outlet />
     </InvoiceDashboardContainer>
   );
@@ -84,14 +99,20 @@ export function ErrorBoundary() {
   let errorTitle: string;
 
   if (isRouteErrorResponse(error)) {
-    errorTitle = error.status === 404 ? "Not Found" : "Something went wrong";
+    errorTitle = error.data ? error.data : ERROR_MESSAGES.SOMETHING_WENT_WRONG;
   } else {
     errorTitle = "Opps! Something went wrong";
   }
 
   return (
     <InvoiceDashboardContainer totalInvoice={0}>
-      <NoInvoice title={errorTitle} description="please check in sometime ✈️" />
+      <NoInvoice
+        title={errorTitle}
+        description={
+          ERROR_DESCRIPTIONS[errorTitle] ??
+          ERROR_DESCRIPTIONS[ERROR_MESSAGES.SOMETHING_WENT_WRONG]
+        }
+      />
     </InvoiceDashboardContainer>
   );
 }

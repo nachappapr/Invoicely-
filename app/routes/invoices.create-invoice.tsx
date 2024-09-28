@@ -21,8 +21,9 @@ import FormError from "~/components/form/FormError";
 import StyledInput from "~/components/form/StyledInput";
 import { SelectConform } from "~/components/form/StyledSelect";
 import { Button } from "~/components/ui/button";
-import { PAYMENT_TERMS } from "~/constants/invoices.contants";
+import { END_POINTS, PAYMENT_TERMS } from "~/constants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
+import { requireUserId } from "~/utils/auth.server";
 import { validateCSRF } from "~/utils/csrf.server";
 import { prisma } from "~/utils/db.server";
 import { checkHoneypot } from "~/utils/honeypot.server";
@@ -51,9 +52,15 @@ const formLayoutVaraint = {
   },
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireUserId(request);
+  return json({});
+}
+
 export async function action({ request }: LoaderFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const userId = await requireUserId(request);
 
   await validateCSRF(formData, request.headers);
   const submission = parseWithZod(formData, {
@@ -69,7 +76,6 @@ export async function action({ request }: LoaderFunctionArgs) {
   }
   const { itemList, ...invoice } = submission.value;
 
-  // add a try catch here
   await prisma.invoice.create({
     data: {
       ...invoice,
@@ -83,11 +89,11 @@ export async function action({ request }: LoaderFunctionArgs) {
           total: item.quantity * item.price,
         })),
       },
-      userId: "cm1bs5wyg00006jp4z77irwep",
+      userId,
     },
   });
 
-  return redirect("/invoices");
+  return redirect(END_POINTS.HOME);
 }
 
 const CreateInvoiceRoute = () => {
@@ -372,7 +378,7 @@ const CreateInvoiceRoute = () => {
               type="button"
               onClick={handleClick}
             >
-              discard
+              Discard
             </Button>
             <div className="flex items-center justify-end gap-2 ">
               <Button
@@ -393,7 +399,7 @@ const CreateInvoiceRoute = () => {
                 type="submit"
                 disabled={isPending}
               >
-                {isPending ? <AnimatedLoader /> : "save changes"}
+                {isPending ? <AnimatedLoader /> : "Save Changes"}
               </Button>
             </div>
           </div>

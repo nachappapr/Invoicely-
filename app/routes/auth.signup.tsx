@@ -1,7 +1,18 @@
 import { getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
+import {
+  json,
+  type LoaderFunctionArgs,
+  redirect,
+  type ActionFunctionArgs,
+} from "@remix-run/node";
+import {
+  Form,
+  Link,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import { z } from "zod";
 import LayoutContainer from "~/components/common/LayoutContainer";
 import { ConformCheckbox } from "~/components/form/ConformCheckbox";
@@ -13,14 +24,27 @@ import {
   createUser,
   findExistingUser,
   getExpirationTime,
+  requireAnonymous,
 } from "~/utils/auth.server";
 import { SignUpSchema } from "~/utils/schema";
 import { sessionStorage } from "~/utils/session.server";
 import fallbackImgSrc from "~/assets/login-background.jpg";
+import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
+import AnimatedLoader from "~/components/common/AnimatedLoader";
+import { safeRedirect } from "remix-utils/safe-redirect";
+import { END_POINTS } from "~/constants";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // redirect to home if user is already logged in
+  await requireAnonymous(request);
+  return json({});
+};
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
+  // redirect to home if user is already logged in
+  await requireAnonymous(request);
 
+  const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: () =>
       SignUpSchema.superRefine(async (data, ctx) => {
@@ -49,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { user, remember } = submission.value;
+  const { user, remember, redirectTo } = submission.value;
 
   const userSession = await sessionStorage.getSession(
     request.headers.get("cookie")
@@ -57,7 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   userSession.set("userId", user.id);
 
-  return redirect("/invoices", {
+  return redirect(safeRedirect(redirectTo, END_POINTS.HOME), {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(userSession, {
         expires: remember ? getExpirationTime() : undefined,
@@ -69,12 +93,19 @@ export async function action({ request }: ActionFunctionArgs) {
 const SignUpPage = () => {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const isPending = useIsFormSubmitting();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo");
+
   const [form, fields] = useForm({
     id: "signup",
     constraint: getZodConstraint(SignUpSchema),
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: SignUpSchema });
+    },
+    defaultValue: {
+      redirectTo,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
@@ -187,8 +218,13 @@ const SignUpPage = () => {
             </CheckboxLabel>
 
             <ErrorMessage errorId={form.errorId} message={signUpErrors} />
-            <Button variant="invoice-primary" type="submit">
-              Sign up
+            <input {...getInputProps(fields.redirectTo, { type: "hidden" })} />
+            <Button
+              variant="invoice-primary"
+              type="submit"
+              disabled={isPending}
+            >
+              {isPending ? <AnimatedLoader /> : "Sign up"}
             </Button>
           </Form>
         </div>

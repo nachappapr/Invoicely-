@@ -1,7 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
-import fs from "node:fs";
 import { UniqueEnforcer } from "enforce-unique";
+import fs from "node:fs";
+import { genHashPasswordSync } from "~/utils/auth.server";
 
 const prisma = new PrismaClient();
 const uniqueUsernameEnforcer = new UniqueEnforcer();
@@ -71,10 +72,16 @@ async function seed() {
   );
 
   for (let i = 0; i < totalUsers; i++) {
+    const userData = createUser();
     await prisma.user
       .create({
         data: {
-          ...createUser(),
+          ...userData,
+          password: {
+            create: {
+              hash: genHashPasswordSync(userData.username),
+            },
+          },
           UserImage: {
             create: userImage[i % 10],
           },

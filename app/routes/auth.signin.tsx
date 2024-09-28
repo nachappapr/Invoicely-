@@ -1,23 +1,50 @@
 import { getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
-import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
+import {
+  json,
+  LoaderFunctionArgs,
+  redirect,
+  type ActionFunctionArgs,
+} from "@remix-run/node";
+import {
+  Form,
+  Link,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
+import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import fallbackImgSrc from "~/assets/login-background.jpg";
+import AnimatedLoader from "~/components/common/AnimatedLoader";
 import LayoutContainer from "~/components/common/LayoutContainer";
 import { ConformCheckbox } from "~/components/form/ConformCheckbox";
 import ErrorMessage from "~/components/form/ErrorMessage";
 import CheckboxLabel from "~/components/form/StyledCheckbox";
 import StyledInput from "~/components/form/StyledInput";
 import { Button } from "~/components/ui/button";
-import { comparePassword, getExpirationTime } from "~/utils/auth.server";
+import { END_POINTS } from "~/constants";
+import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
+import {
+  comparePassword,
+  getExpirationTime,
+  requireAnonymous,
+} from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { SignInSchema } from "~/utils/schema";
 import { sessionStorage } from "~/utils/session.server";
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // redirect to home if user is already logged in
+  await requireAnonymous(request);
+  return json({});
+};
 
+export async function action({ request }: ActionFunctionArgs) {
+  // redirect to home if user is already logged in
+  await requireAnonymous(request);
+
+  const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: () =>
       SignInSchema.transform(async (data, ctx) => {
@@ -60,7 +87,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { user, remember } = submission.value;
+  const { user, remember, redirectTo } = submission.value;
 
   const userSession = await sessionStorage.getSession(
     request.headers.get("cookie")
@@ -68,7 +95,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   userSession.set("userId", user.id);
 
-  return redirect("/invoices", {
+  return redirect(safeRedirect(redirectTo, END_POINTS.HOME), {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(userSession, {
         expires: remember ? getExpirationTime() : undefined,
@@ -80,12 +107,19 @@ export async function action({ request }: ActionFunctionArgs) {
 const SignInPage = () => {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const isPending = useIsFormSubmitting();
+  const [params] = useSearchParams();
+  const redirectTo = params.get("redirectTo");
+
   const [form, fields] = useForm({
     id: "signin",
     constraint: getZodConstraint(SignInSchema),
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: SignInSchema });
+    },
+    defaultValue: {
+      redirectTo,
     },
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
@@ -164,8 +198,17 @@ const SignInPage = () => {
               </Link>
             </div>
             <ErrorMessage errorId={form.errorId} message={loginErrors} />
-            <Button variant="invoice-primary" type="submit">
-              Login
+            <input
+              {...getInputProps(fields.redirectTo, {
+                type: "hidden",
+              })}
+            />
+            <Button
+              variant="invoice-primary"
+              type="submit"
+              disabled={isPending}
+            >
+              {isPending ? <AnimatedLoader /> : "Login"}
             </Button>
           </Form>
         </div>

@@ -69,6 +69,7 @@ const NameSchema = z
 export const SignInSchema = z.object({
   email: EmailSchema,
   password: PasswordSchema,
+  redirectTo: z.string().optional(),
   remember: z.boolean().optional(),
 });
 
@@ -84,6 +85,7 @@ export const SignUpSchema = z
         "You must agree to the terms of service and privacy policy",
     }),
     remember: z.boolean().optional(),
+    redirectTo: z.string().optional(),
   })
   .superRefine(({ password, confirmPassword }, ctx) => {
     if (password !== confirmPassword) {

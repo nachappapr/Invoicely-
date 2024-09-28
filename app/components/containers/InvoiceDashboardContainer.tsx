@@ -1,28 +1,40 @@
 import { Link } from "@remix-run/react";
-import React from "react";
+import React, { Fragment } from "react";
 import { IconPlus } from "~/assets/icons";
 import FilterStatus from "../FilterStatus";
 import LayoutContainer from "../common/LayoutContainer";
 import { Button } from "../ui/button";
+import InvoiceTotalSkeleton from "../skeletons/InvoiceTotalSkeleton";
 
 const InvoiceDashboardContainer = ({
   totalInvoice,
   children,
+  isLoading,
 }: {
   totalInvoice: number;
   children: React.ReactNode;
+  isLoading?: boolean;
 }) => {
+  const renderInvoiceCount = () => {
+    if (isLoading) return <InvoiceTotalSkeleton />;
+    return (
+      <Fragment>
+        <span className="hidden lg:inline-block text-body-two !text-indigo-2000 dark:!text-indigo-1000">
+          {`There are ${totalInvoice} total invoices`}
+        </span>
+        <span className="lg:hidden text-body-two !text-indigo-2000 dark:!text-indigo-1000">
+          {`${totalInvoice} invoices`}
+        </span>
+      </Fragment>
+    );
+  };
+
   return (
     <LayoutContainer>
       <div className="w-90% md:w-full flex justify-between items-center">
         <div>
-          <h1 className="primary-heading ">Invoices</h1>
-          <span className="hidden lg:inline-block text-body-two !text-indigo-2000 dark:!text-indigo-1000">
-            {`There are ${totalInvoice} total invoices`}
-          </span>
-          <span className="lg:hidden text-body-two !text-indigo-2000 dark:!text-indigo-1000">
-            7 invoices
-          </span>
+          <h1 className="primary-heading">Invoices</h1>
+          {renderInvoiceCount()}
         </div>
         <div className="flex items-center gap-4 lg:gap-10">
           <FilterStatus />
