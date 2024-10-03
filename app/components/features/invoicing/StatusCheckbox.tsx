@@ -1,16 +1,16 @@
 import { IconCheck } from "~/assets/icons";
 
-type CustomCheckboxProps = {
+type StatusCheckboxProps = {
   label: string;
   checked: boolean;
   handleSelectStatus: (status: string) => void;
 };
 
-const CustomCheckbox = ({
+const StatusCheckbox = ({
   label,
   checked,
   handleSelectStatus,
-}: CustomCheckboxProps) => {
+}: StatusCheckboxProps) => {
   return (
     <div className="group/item flex items-center relative capitalize">
       <input
@@ -33,4 +33,4 @@ const CustomCheckbox = ({
   );
 };
 
-export default CustomCheckbox;
+export default StatusCheckbox;

@@ -9,12 +9,12 @@ import {
   getFormattedDate,
   getTotals,
 } from "~/utils/misc";
-import StatusCard from "../StatusCard";
-import Card from "../common/Card";
-import LayoutContainer from "../common/LayoutContainer";
-import DeleteModal from "../form/DeleteModal";
-import MarkAsPaid from "../form/MarkAsPaid";
-import { Button } from "../ui/button";
+import StatusCard from "./InvoiceStatusBadge";
+import Card from "../../common/Card";
+import LayoutContainer from "../../layout/LayoutContainer";
+import DeleteModal from "./InvoiceDeleteModal";
+import MarkAsPaid from "./MarkInvoiceAsPaidButton";
+import { Button } from "../../ui/button";
 
 const InvoiceDetailsContainer = () => {
   const {

@@ -7,14 +7,14 @@ import {
   Outlet,
   isRouteErrorResponse,
   useLoaderData,
-  useNavigation,
   useRouteError,
 } from "@remix-run/react";
-import InvoiceDashboardContainer from "~/components/containers/InvoiceDashboardContainer";
-import InvoiceItems from "~/components/invoice/InvoiceItems";
-import InvoiceItemsSkeleton from "~/components/invoice/InvoiceItemsSkeleton";
-import NoInvoice from "~/components/invoice/NoInvoice";
+import InvoiceDashboardContainer from "~/components/features/invoicing/InvoiceDashboardContainer";
+import InvoiceItems from "~/components/features/invoicing/InvoiceItems";
+import InvoiceItemsSkeleton from "~/components/skeletons/InvoiceItemsSkeleton";
+import NoInvoice from "~/components/features/invoicing/NoInvoice";
 import { ERROR_DESCRIPTIONS, ERROR_MESSAGES } from "~/constants";
+import useIsPageLoading from "~/hooks/useIsPageLoading";
 import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { invariantResponse } from "~/utils/misc";
@@ -74,8 +74,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 const Invoices = () => {
   const { invoices } = useLoaderData<typeof loader>();
-  const navigation = useNavigation();
-  const isLoading = navigation.state === "loading";
+  const isLoading = useIsPageLoading();
 
   const renderInvoiceItem = () => {
     if (isLoading) return <InvoiceItemsSkeleton />;

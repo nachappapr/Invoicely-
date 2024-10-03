@@ -1,11 +1,8 @@
 import { getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import {
-  json,
-  LoaderFunctionArgs,
-  redirect,
-  type ActionFunctionArgs,
-} from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
+
 import {
   Form,
   Link,
@@ -17,11 +14,11 @@ import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import fallbackImgSrc from "~/assets/login-background.jpg";
 import AnimatedLoader from "~/components/common/AnimatedLoader";
-import LayoutContainer from "~/components/common/LayoutContainer";
-import { ConformCheckbox } from "~/components/form/ConformCheckbox";
-import ErrorMessage from "~/components/form/ErrorMessage";
-import CheckboxLabel from "~/components/form/StyledCheckbox";
-import StyledInput from "~/components/form/StyledInput";
+import LayoutContainer from "~/components/layout/LayoutContainer";
+import { ConformCheckboxField } from "~/components/common/ConformCheckboxField";
+import FormFieldErrorMessage from "~/components/common/FormFieldErrorMessage";
+import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
+import StyledInputField from "~/components/common/StyledInputField";
 import { Button } from "~/components/ui/button";
 import { END_POINTS } from "~/constants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
@@ -37,7 +34,14 @@ import { sessionStorage } from "~/utils/session.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // redirect to home if user is already logged in
   await requireAnonymous(request);
-  return json({});
+  return json(
+    {},
+    {
+      headers: {
+        "Cache-Control": "public, max-age=3600",
+      },
+    }
+  );
 };
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -170,7 +174,7 @@ const SignInPage = () => {
             noValidate
             className="flex flex-col gap-4"
           >
-            <StyledInput
+            <StyledInputField
               label="email"
               htmlFor={fields.email.id}
               error={fields.email.errors}
@@ -178,7 +182,7 @@ const SignInPage = () => {
                 type: "email",
               })}
             />
-            <StyledInput
+            <StyledInputField
               label="password"
               htmlFor={fields.password.id}
               error={fields.password.errors}
@@ -187,9 +191,12 @@ const SignInPage = () => {
               })}
             />
             <div className="flex justify-between items-center gap-1">
-              <CheckboxLabel label="Remember me" htmlFor={fields.remember.id}>
-                <ConformCheckbox meta={fields.remember} />
-              </CheckboxLabel>
+              <CheckboxLabelWrapper
+                label="Remember me"
+                htmlFor={fields.remember.id}
+              >
+                <ConformCheckboxField meta={fields.remember} />
+              </CheckboxLabelWrapper>
               <Link
                 to="/auth/forgot-password"
                 className=" text-purple-1000 text-sm font-bold"
@@ -197,7 +204,10 @@ const SignInPage = () => {
                 forgot the password?
               </Link>
             </div>
-            <ErrorMessage errorId={form.errorId} message={loginErrors} />
+            <FormFieldErrorMessage
+              errorId={form.errorId}
+              message={loginErrors}
+            />
             <input
               {...getInputProps(fields.redirectTo, {
                 type: "hidden",

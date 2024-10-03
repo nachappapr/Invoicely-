@@ -5,7 +5,7 @@ type ErrorMessageProps = {
   errorId?: string;
 };
 
-const ErrorMessage = ({ message, errorId }: ErrorMessageProps) => {
+const FormFieldErrorMessage = ({ message, errorId }: ErrorMessageProps) => {
   return message?.map((msg, index) => (
     <div
       key={index}
@@ -17,4 +17,4 @@ const ErrorMessage = ({ message, errorId }: ErrorMessageProps) => {
   ));
 };
 
-export default ErrorMessage;
+export default FormFieldErrorMessage;

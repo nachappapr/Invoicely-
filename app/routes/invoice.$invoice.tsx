@@ -1,9 +1,9 @@
 import { json, redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import { motion } from "framer-motion";
-import LayoutContainer from "~/components/common/LayoutContainer";
-import InvoiceDetailsContainer from "~/components/containers/InvoiceDetailsContainer";
-import NoInvoice from "~/components/invoice/NoInvoice";
+import LayoutContainer from "~/components/layout/LayoutContainer";
+import InvoiceDetailsContainer from "~/components/features/invoicing/InvoiceDetailsContainer";
+import NoInvoice from "~/components/features/invoicing/NoInvoice";
 import { END_POINTS, ERROR_DESCRIPTIONS, ERROR_MESSAGES } from "~/constants";
 import { requireUser } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";

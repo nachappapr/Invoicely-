@@ -14,11 +14,11 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { z } from "zod";
-import LayoutContainer from "~/components/common/LayoutContainer";
-import { ConformCheckbox } from "~/components/form/ConformCheckbox";
-import ErrorMessage from "~/components/form/ErrorMessage";
-import CheckboxLabel from "~/components/form/StyledCheckbox";
-import StyledInput from "~/components/form/StyledInput";
+import LayoutContainer from "~/components/layout/LayoutContainer";
+import { ConformCheckboxField } from "~/components/common/ConformCheckboxField";
+import FormFieldErrorMessage from "~/components/common/FormFieldErrorMessage";
+import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
+import StyledInputField from "~/components/common/StyledInputField";
 import { Button } from "~/components/ui/button";
 import {
   createUser,
@@ -37,7 +37,14 @@ import { END_POINTS } from "~/constants";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // redirect to home if user is already logged in
   await requireAnonymous(request);
-  return json({});
+  return json(
+    {},
+    {
+      headers: {
+        "Cache-Control": "public, max-age=3600",
+      },
+    }
+  );
 };
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -159,7 +166,7 @@ const SignUpPage = () => {
             noValidate
             className="flex flex-col gap-4"
           >
-            <StyledInput
+            <StyledInputField
               label="username"
               htmlFor={fields.username.id}
               error={fields.username.errors}
@@ -167,7 +174,7 @@ const SignUpPage = () => {
                 type: "text",
               })}
             />
-            <StyledInput
+            <StyledInputField
               label="name"
               htmlFor={fields.name.id}
               error={fields.name.errors}
@@ -175,7 +182,7 @@ const SignUpPage = () => {
                 type: "text",
               })}
             />
-            <StyledInput
+            <StyledInputField
               label="email"
               htmlFor={fields.email.id}
               error={fields.email.errors}
@@ -183,7 +190,7 @@ const SignUpPage = () => {
                 type: "email",
               })}
             />
-            <StyledInput
+            <StyledInputField
               label="password"
               htmlFor={fields.password.id}
               error={fields.password.errors}
@@ -191,7 +198,7 @@ const SignUpPage = () => {
                 type: "password",
               })}
             />
-            <StyledInput
+            <StyledInputField
               label="confirm password"
               htmlFor={fields.confirmPassword.id}
               error={fields.confirmPassword.errors}
@@ -199,25 +206,31 @@ const SignUpPage = () => {
                 type: "password",
               })}
             />
-            <CheckboxLabel
+            <CheckboxLabelWrapper
               label="Accept terms and conditions"
               privacyText="You agree to our Terms of Service and Privacy Policy."
               htmlFor={fields.agreeToTermsOfServiceAndPrivacyPolicy.id}
             >
-              <ConformCheckbox
+              <ConformCheckboxField
                 meta={fields.agreeToTermsOfServiceAndPrivacyPolicy}
               />
-            </CheckboxLabel>
-            <ErrorMessage
+            </CheckboxLabelWrapper>
+            <FormFieldErrorMessage
               errorId={fields.agreeToTermsOfServiceAndPrivacyPolicy.errorId}
               message={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
             />
 
-            <CheckboxLabel label="Remember me" htmlFor={fields.remember.id}>
-              <ConformCheckbox meta={fields.remember} />
-            </CheckboxLabel>
+            <CheckboxLabelWrapper
+              label="Remember me"
+              htmlFor={fields.remember.id}
+            >
+              <ConformCheckboxField meta={fields.remember} />
+            </CheckboxLabelWrapper>
 
-            <ErrorMessage errorId={form.errorId} message={signUpErrors} />
+            <FormFieldErrorMessage
+              errorId={form.errorId}
+              message={signUpErrors}
+            />
             <input {...getInputProps(fields.redirectTo, { type: "hidden" })} />
             <Button
               variant="invoice-primary"

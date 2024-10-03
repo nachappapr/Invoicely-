@@ -21,10 +21,10 @@ import { AnimatePresence } from "framer-motion";
 import { AuthenticityTokenProvider } from "remix-utils/csrf/react";
 import { HoneypotProvider } from "remix-utils/honeypot/react";
 import faviconUrl from "./assets/favicon.svg";
-import SideNav from "./components/SideNav";
-import LayoutContainer from "./components/common/LayoutContainer";
+import SideNav from "./components/layout/SideNav";
+import LayoutContainer from "./components/layout/LayoutContainer";
 import { AlertToast } from "./components/common/Toast";
-import LogoutTimer from "./components/form/LogoutTimer";
+import LogoutTimer from "./components/features/auth/InactivityLogoutModal";
 import { Toaster } from "./components/ui/toaster";
 import { type Theme } from "./global";
 import { useTheme } from "./hooks/useTheme";
@@ -45,7 +45,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [csrfToken, csrfCookieHeader] = await csrf.commitToken();
   const honeyProps = honeypot.getInputProps();
   const theme = getTheme(request);
-  const { toast, headers } = await getToast(request);
+  const { toast, headers: toastHeaders } = await getToast(request);
+
   const userId = await getUserId(request);
 
   const user = userId
@@ -73,7 +74,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
               "Set-Cookie": csrfCookieHeader,
             }
           : null,
-        headers
+        toastHeaders
       ),
     }
   );
@@ -143,9 +144,12 @@ export default function App() {
   const theme = useTheme();
   const isLoggedInUser = data.user ? true : false;
   const matcher = useMatches();
-  const isAuthPage = matcher.some((match) =>
-    match.pathname.startsWith("/auth")
+  const isAuthPage = matcher.some(
+    (match) =>
+      match.pathname.startsWith("/auth") || match.id === "routes/_index"
   );
+
+  console.log("matchers", matcher);
 
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
@@ -154,7 +158,7 @@ export default function App() {
           <Document theme={theme}>
             {isAuthPage ? null : <SideNav theme={theme} />}
             <Toaster />
-            {data.toast && <AlertToast {...data.toast} />}
+            {data.toast ? <AlertToast {...data.toast} /> : null}
             {isLoggedInUser ? <LogoutTimer /> : null}
           </Document>
         </AnimatePresence>

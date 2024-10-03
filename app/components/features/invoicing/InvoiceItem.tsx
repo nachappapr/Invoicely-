@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { IconArrowRight } from "~/assets/icons";
 import { type InvoiceType } from "~/global";
 import { getFormattedDate } from "~/utils/misc";
-import StatusCard from "../StatusCard";
+import StatusCard from "./InvoiceStatusBadge";
 
 /**Variants start */
 const item = {

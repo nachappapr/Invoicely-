@@ -18,7 +18,7 @@ export const AlertToast = ({
   useEffect(() => {
     if (!buttonRef.current) return;
     buttonRef.current.click();
-  }, []);
+  }, [title, description, variant]);
 
   return (
     <button

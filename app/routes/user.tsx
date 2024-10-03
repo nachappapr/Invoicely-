@@ -1,5 +1,5 @@
 import { Form, Link, useLocation } from "@remix-run/react";
-import LayoutContainer from "~/components/common/LayoutContainer";
+import LayoutContainer from "~/components/layout/LayoutContainer";
 import { useOptionalUser } from "~/utils/user";
 
 const UserProfilePage = () => {

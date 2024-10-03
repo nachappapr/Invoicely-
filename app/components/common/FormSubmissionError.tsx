@@ -1,4 +1,4 @@
-const FormError = ({
+const FormSubmissionError = ({
   formError,
   invoiceItemError,
 }: {
@@ -16,4 +16,4 @@ const FormError = ({
   );
 };
 
-export default FormError;
+export default FormSubmissionError;

@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import { forwardRef } from "react";
-import ErrorMessage from "./ErrorMessage";
+import FormFieldErrorMessage from "./FormFieldErrorMessage";
 import { Input } from "../ui/input";
 
-type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+type StyledInputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
   htmlFor?: string;
   label: string;
   errorId?: string;
@@ -11,14 +11,14 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   showErrorMessages?: boolean;
 };
 
-const StyledInput = forwardRef<HTMLInputElement, InputProps>(
+const StyledInputField = forwardRef<HTMLInputElement, StyledInputFieldProps>(
   (
     { htmlFor, label, errorId, error, showErrorMessages = true, ...otherProps },
     ref
   ) => {
     const renderError = () => {
       if (!error?.length) return null;
-      return <ErrorMessage message={error} errorId={errorId} />;
+      return <FormFieldErrorMessage message={error} errorId={errorId} />;
     };
 
     return (
@@ -52,6 +52,6 @@ const StyledInput = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-StyledInput.displayName = "StyledInput";
+StyledInputField.displayName = "StyledInputField";
 
-export default StyledInput;
+export default StyledInputField;

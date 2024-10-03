@@ -1,6 +1,6 @@
 import { Form } from "@remix-run/react";
 
-const SaveAsDraft = () => {
+const SaveDraftButton = () => {
   return (
     <Form>
       <button
@@ -15,4 +15,4 @@ const SaveAsDraft = () => {
   );
 };
 
-export default SaveAsDraft;
+export default SaveDraftButton;

@@ -1,16 +1,16 @@
-type StyledCheckboxProps = {
+type CheckboxLabelWrapperProps = {
   label?: string;
   children: React.ReactNode;
   htmlFor?: string;
   privacyText?: string;
 };
 
-const CheckboxLabel = ({
+const CheckboxLabelWrapper = ({
   children,
   label,
   privacyText,
   htmlFor,
-}: StyledCheckboxProps) => {
+}: CheckboxLabelWrapperProps) => {
   return (
     <div className="items-top flex">
       {children}
@@ -31,4 +31,4 @@ const CheckboxLabel = ({
   );
 };
 
-export default CheckboxLabel;
+export default CheckboxLabelWrapper;

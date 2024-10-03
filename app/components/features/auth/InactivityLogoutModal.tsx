@@ -10,11 +10,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
+} from "../../ui/alert-dialog";
 
 type ModalStateType = "show-modal" | "idle";
 
-function LogoutTimer() {
+function InactivityLogoutModal() {
   const [status, setStatus] = useState<ModalStateType>("idle");
   const location = useLocation();
   const logoutTime = 1000 * 60 * 60;
@@ -75,4 +75,4 @@ function LogoutTimer() {
   );
 }
 
-export default LogoutTimer;
+export default InactivityLogoutModal;

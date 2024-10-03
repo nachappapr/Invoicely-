@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@remix-run/react";
-import LayoutContainer from "~/components/common/LayoutContainer";
+import LayoutContainer from "~/components/layout/LayoutContainer";
 
 export function loader() {
   throw new Response("Not Found", { status: 404 });

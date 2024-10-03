@@ -16,10 +16,10 @@ import SvgIconDelete from "~/assets/icons/IconDelete";
 import SvgIconPlus from "~/assets/icons/IconPlus";
 import AnimatedLoader from "~/components/common/AnimatedLoader";
 import Backdrop from "~/components/common/Backdrop";
-import { DatePickerConform } from "~/components/form/Calender";
-import FormError from "~/components/form/FormError";
-import StyledInput from "~/components/form/StyledInput";
-import { SelectConform } from "~/components/form/StyledSelect";
+import { ConformDatePicker } from "~/components/common/ConformDatePicker";
+import FormSubmissionError from "~/components/common/FormSubmissionError";
+import StyledInputField from "~/components/common/StyledInputField";
+import { ConformSelectField } from "~/components/common/ConformSelectField";
 import { Button } from "~/components/ui/button";
 import { END_POINTS, PAYMENT_TERMS } from "~/constants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
@@ -54,7 +54,14 @@ const formLayoutVaraint = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireUserId(request);
-  return json({});
+  return json(
+    {},
+    {
+      headers: {
+        "Cache-Control": "max-age=300, s-maxage=3600",
+      },
+    }
+  );
 }
 
 export async function action({ request }: LoaderFunctionArgs) {
@@ -154,7 +161,7 @@ const CreateInvoiceRoute = () => {
               Bill From
             </legend>
             <div className="flex flex-col gap-4">
-              <StyledInput
+              <StyledInputField
                 htmlFor={fields.fromAddress.id}
                 label="Address"
                 errorId={fields.fromAddress.errorId}
@@ -162,7 +169,7 @@ const CreateInvoiceRoute = () => {
                 {...getInputProps(fields.fromAddress, { type: "text" })}
               />
               <div className="flex flex-row gap-4">
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.fromCity.id}
                   label="City"
                   errorId={fields.fromCity.errorId}
@@ -170,7 +177,7 @@ const CreateInvoiceRoute = () => {
                   {...getInputProps(fields.fromCity, { type: "text" })}
                   showErrorMessages={false}
                 />
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.fromPostalCode.id}
                   label="Post Code"
                   errorId={fields.fromPostalCode.errorId}
@@ -178,7 +185,7 @@ const CreateInvoiceRoute = () => {
                   {...getInputProps(fields.fromPostalCode, { type: "text" })}
                   showErrorMessages={false}
                 />
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.fromCountry.id}
                   label="Country"
                   errorId={fields.fromCountry.errorId}
@@ -194,21 +201,21 @@ const CreateInvoiceRoute = () => {
               Bill To
             </legend>
             <div className="flex flex-col gap-4">
-              <StyledInput
+              <StyledInputField
                 htmlFor={fields.clientName.id}
                 label="Client’s Name"
                 errorId={fields.clientName.errorId}
                 error={fields.clientName.errors}
                 {...getInputProps(fields.clientName, { type: "text" })}
               />
-              <StyledInput
+              <StyledInputField
                 htmlFor={fields.clientEmail.id}
                 label="Client’s Email"
                 errorId={fields.clientEmail.errorId}
                 error={fields.clientEmail.errors}
                 {...getInputProps(fields.clientEmail, { type: "email" })}
               />
-              <StyledInput
+              <StyledInputField
                 htmlFor={fields.clientAddress.id}
                 label="Street Address"
                 errorId={fields.clientAddress.errorId}
@@ -218,7 +225,7 @@ const CreateInvoiceRoute = () => {
                 })}
               />
               <div className="flex flex-row gap-4">
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.clientCity.id}
                   label="City"
                   errorId={fields.clientCity.errorId}
@@ -226,7 +233,7 @@ const CreateInvoiceRoute = () => {
                   {...getInputProps(fields.clientCity, { type: "text" })}
                   showErrorMessages={false}
                 />
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.clientPostalCode.id}
                   label="Post Code"
                   errorId={fields.clientPostalCode.errorId}
@@ -236,7 +243,7 @@ const CreateInvoiceRoute = () => {
                   })}
                   showErrorMessages={false}
                 />
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.clientCountry.id}
                   label="Country"
                   errorId={fields.clientCountry.errorId}
@@ -249,7 +256,7 @@ const CreateInvoiceRoute = () => {
               </div>
               <div className="flex flex-row gap-4">
                 <div className="w-full">
-                  <DatePickerConform
+                  <ConformDatePicker
                     label={"invoice date"}
                     meta={fields.invoiceDate}
                   />
@@ -269,7 +276,7 @@ const CreateInvoiceRoute = () => {
                       {fields.paymentTerms.errors}
                     </div>
                   </div>
-                  <SelectConform
+                  <ConformSelectField
                     items={paymentOptions}
                     meta={fields.paymentTerms}
                     placeholder="Select Payment Terms"
@@ -277,7 +284,7 @@ const CreateInvoiceRoute = () => {
                 </div>
               </div>
               <div>
-                <StyledInput
+                <StyledInputField
                   htmlFor={fields.projectDescription.id}
                   label="Project Description"
                   errorId={fields.projectDescription.errorId}
@@ -303,7 +310,7 @@ const CreateInvoiceRoute = () => {
                   >
                     <fieldset className="grid grid-cols-[1fr_2fr] md:grid-cols-[2fr_1fr_1fr] grid-flow-row gap-4 items-center">
                       <div className="col-span-full lg:col-span-1">
-                        <StyledInput
+                        <StyledInputField
                           label="Item Name"
                           htmlFor={field.name.id}
                           errorId={field.name.errorId}
@@ -315,7 +322,7 @@ const CreateInvoiceRoute = () => {
                         />
                       </div>
                       <div>
-                        <StyledInput
+                        <StyledInputField
                           label="Qty"
                           htmlFor={field.quantity.id}
                           errorId={field.quantity.errorId}
@@ -329,7 +336,7 @@ const CreateInvoiceRoute = () => {
                         />
                       </div>
                       <div>
-                        <StyledInput
+                        <StyledInputField
                           label="Price"
                           htmlFor={field.price.id}
                           errorId={field.price.errorId}
@@ -366,7 +373,7 @@ const CreateInvoiceRoute = () => {
           </fieldset>
           <HoneypotInputs />
           <AuthenticityTokenInput />
-          <FormError
+          <FormSubmissionError
             formError={false}
             invoiceItemError={fields.itemList.errors}
           />

@@ -1,4 +1,4 @@
-import StatusCardSkeleton from "../StatusCardSkeleton";
+import InvoiceStatusBadgeSkeleton from "./InvoiceStatusBadgeSkeleton";
 import { Skeleton } from "../ui/skeleton";
 import { motion } from "framer-motion";
 
@@ -18,7 +18,7 @@ const InvoiceItemSkeleton = () => {
         <Skeleton className="w-24 h-5 col-start-2  row-start-1 md:col-start-auto md:row-start-auto"></Skeleton>
         <Skeleton className="w-12 h-5 col-start-1 row-start-3 md:col-start-auto md:row-start-auto"></Skeleton>
         <div className="col-start-2 row-start-2 row-span-2 md:col-start-auto md:row-start-auto">
-          <StatusCardSkeleton />
+          <InvoiceStatusBadgeSkeleton />
         </div>
         <Skeleton className="h-4 w-4 justify-self-end hidden md:block"></Skeleton>
       </Skeleton>

@@ -1,8 +1,8 @@
 import { useFetcher } from "@remix-run/react";
-import AnimatedLoader from "../common/AnimatedLoader";
-import { Button } from "../ui/button";
+import AnimatedLoader from "../../common/AnimatedLoader";
+import { Button } from "../../ui/button";
 
-const MarkAsPaid = () => {
+const MarkInvoiceAsPaidButton = () => {
   const fetcher = useFetcher();
   const isPending = fetcher.state === "submitting";
   return (
@@ -20,4 +20,4 @@ const MarkAsPaid = () => {
   );
 };
 
-export default MarkAsPaid;
+export default MarkInvoiceAsPaidButton;

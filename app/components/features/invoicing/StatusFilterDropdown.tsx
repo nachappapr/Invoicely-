@@ -3,8 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { STATUS_TYPES } from "~/constants";
 import useOutsideClick from "~/hooks/useOutsideClick";
-import CustomCheckbox from "./form/CustomCheckbox";
-import { Button } from "./ui/button";
+import StatusCheckbox from "./StatusCheckbox";
+import { Button } from "~/components/ui/button";
 
 /**
  *  start of animation variants
@@ -32,7 +32,7 @@ const svgVariant = {
 
 /** end of animation variants */
 
-const FilterStatus = () => {
+const StatusFilterDropdown = () => {
   const [toggleStatusMenu, setToggleStatusMenu] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
   const ref = useRef(null);
@@ -72,7 +72,7 @@ const FilterStatus = () => {
   const renderCheckbox = () => {
     return STATUS_TYPES.map((status) => {
       return (
-        <CustomCheckbox
+        <StatusCheckbox
           key={status}
           label={status}
           checked={selectedStatus.includes(status)}
@@ -134,4 +134,4 @@ const FilterStatus = () => {
   );
 };
 
-export default FilterStatus;
+export default StatusFilterDropdown;

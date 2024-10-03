@@ -1,7 +1,11 @@
 import clsx from "clsx";
 import { STATUS_COLOR } from "~/constants";
 
-const StatusCard = ({ status }: { status: "draft" | "pending" | "paid" }) => {
+const InvoiceStatusBadge = ({
+  status,
+}: {
+  status: "draft" | "pending" | "paid";
+}) => {
   return (
     <div
       className={clsx(
@@ -24,4 +28,4 @@ const StatusCard = ({ status }: { status: "draft" | "pending" | "paid" }) => {
   );
 };
 
-export default StatusCard;
+export default InvoiceStatusBadge;

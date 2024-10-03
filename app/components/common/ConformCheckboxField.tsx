@@ -5,7 +5,7 @@ import {
 import { useRef, type ElementRef } from "react";
 import { Checkbox } from "../ui/checkbox";
 
-export function ConformCheckbox({
+export function ConformCheckboxField({
   meta,
 }: {
   meta: FieldMetadata<string | boolean | undefined>;

@@ -1,7 +1,7 @@
 import clsx from "clsx";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
-const StatusCardSkeleton = () => {
+const InvoiceStatusBadgeSkeleton = () => {
   return (
     <Skeleton
       className={clsx(
@@ -14,4 +14,4 @@ const StatusCardSkeleton = () => {
   );
 };
 
-export default StatusCardSkeleton;
+export default InvoiceStatusBadgeSkeleton;

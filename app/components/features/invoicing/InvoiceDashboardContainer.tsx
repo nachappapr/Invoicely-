@@ -1,10 +1,10 @@
 import { Link } from "@remix-run/react";
 import React, { Fragment } from "react";
 import { IconPlus } from "~/assets/icons";
-import FilterStatus from "../FilterStatus";
-import LayoutContainer from "../common/LayoutContainer";
-import { Button } from "../ui/button";
-import InvoiceTotalSkeleton from "../skeletons/InvoiceTotalSkeleton";
+import LayoutContainer from "../../layout/LayoutContainer";
+import StatusFilterDropdown from "./StatusFilterDropdown";
+import InvoiceTotalSkeleton from "../../skeletons/InvoiceTotalSkeleton";
+import { Button } from "../../ui/button";
 
 const InvoiceDashboardContainer = ({
   totalInvoice,
@@ -37,7 +37,7 @@ const InvoiceDashboardContainer = ({
           {renderInvoiceCount()}
         </div>
         <div className="flex items-center gap-4 lg:gap-10">
-          <FilterStatus />
+          <StatusFilterDropdown />
           <Link to="./create-invoice">
             <Button
               variant="invoice-primary"

@@ -2,10 +2,10 @@ import { Form } from "@remix-run/react";
 import { motion } from "framer-motion";
 import React, { Fragment } from "react";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
-import AnimatedLoader from "../common/AnimatedLoader";
-import Backdrop from "../common/Backdrop";
-import Card from "../common/Card";
-import { Button } from "../ui/button";
+import AnimatedLoader from "../../common/AnimatedLoader";
+import Backdrop from "../../common/Backdrop";
+import Card from "../../common/Card";
+import { Button } from "../../ui/button";
 
 const backdropVariant = {
   initial: { opacity: 0 },
@@ -19,7 +19,7 @@ const backdropVariant = {
   },
 };
 
-const DeleteModal = ({
+const InvoiceDeleteModal = ({
   children,
   onClose,
 }: {
@@ -66,4 +66,4 @@ const DeleteModal = ({
   );
 };
 
-export default DeleteModal;
+export default InvoiceDeleteModal;

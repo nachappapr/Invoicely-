@@ -11,7 +11,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import clsx from "clsx";
 
-export function DatePickerConform({
+export function ConformDatePicker({
   meta,
   label,
 }: {
