@@ -12,6 +12,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "~/components/ui/navigation-menu";
+import { END_POINTS } from "~/constants";
 
 const Avatar = ({ id }: { id: number }) => (
   <svg
@@ -177,7 +178,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-white-1000">
       <header className="sticky top-0 z-50 w-full border-b border-indigo-1000 dark:border-blue-1050 bg-white-1000/80 dark:bg-blue-2000/80 backdrop-blur-sm">
         <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -276,7 +277,7 @@ export default function HomePage() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/about" legacyBehavior passHref>
+                <Link to="/about">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     About
                   </NavigationMenuLink>
@@ -285,15 +286,19 @@ export default function HomePage() {
             </NavigationMenuList>
           </NavigationMenu>
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              className="text-gray-1000 dark:text-white-1000 hover:text-purple-1000 dark:hover:text-purple-1050"
-            >
-              Log in
-            </Button>
-            <Button className="bg-purple-1000 text-white hover:bg-purple-1050 dark:bg-purple-1050 dark:hover:bg-purple-1000">
-              Sign up
-            </Button>
+            <Link to={END_POINTS.LOGIN}>
+              <Button
+                variant="ghost"
+                className="text-gray-1000 dark:text-white-1000 hover:text-purple-1000 dark:hover:text-purple-1050"
+              >
+                Log in
+              </Button>
+            </Link>
+            <Link to={END_POINTS.SIGNUP}>
+              <Button className="bg-purple-1000 text-white hover:bg-purple-1050 dark:bg-purple-1050 dark:hover:bg-purple-1000">
+                Sign up
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -327,7 +332,7 @@ export default function HomePage() {
                           transform: `translate(calc(${x}px - 50%), calc(${y}px - 50%))`,
                         }}
                       >
-                        <Avatar id={avatar.id} />
+                        <Avatar id={index} />
                       </motion.div>
                     );
                   })}
