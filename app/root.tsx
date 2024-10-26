@@ -149,8 +149,6 @@ export default function App() {
       match.pathname.startsWith("/auth") || match.id === "routes/_index"
   );
 
-  console.log("matchers", matcher);
-
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
       <HoneypotProvider {...data.honeyProps}>
