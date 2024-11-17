@@ -2,9 +2,9 @@ import { getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
   json,
-  type LoaderFunctionArgs,
   redirect,
   type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import {
   Form,
@@ -13,26 +13,25 @@ import {
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
+import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
-import LayoutContainer from "~/components/layout/LayoutContainer";
+import fallbackImgSrc from "~/assets/login-background.jpg";
+import AnimatedLoader from "~/components/common/AnimatedLoader";
+import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
 import { ConformCheckboxField } from "~/components/common/ConformCheckboxField";
 import FormFieldErrorMessage from "~/components/common/FormFieldErrorMessage";
-import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
 import StyledInputField from "~/components/common/StyledInputField";
+import LayoutContainer from "~/components/layout/LayoutContainer";
 import { Button } from "~/components/ui/button";
+import { END_POINTS } from "~/constants";
+import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
 import {
   createUser,
   findExistingUser,
-  getExpirationTime,
   requireAnonymous,
 } from "~/utils/auth.server";
 import { SignUpSchema } from "~/utils/schema";
-import { sessionStorage } from "~/utils/session.server";
-import fallbackImgSrc from "~/assets/login-background.jpg";
-import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
-import AnimatedLoader from "~/components/common/AnimatedLoader";
-import { safeRedirect } from "remix-utils/safe-redirect";
-import { END_POINTS } from "~/constants";
+import { sessionKey, sessionStorage } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // redirect to home if user is already logged in
@@ -65,8 +64,8 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }).transform(async (data) => {
         const { email, password, username } = data;
-        const user = await createUser({ username, email, password });
-        return { ...data, user };
+        const session = await createUser({ username, email, password });
+        return { ...data, session };
       }),
     async: true,
   });
@@ -80,18 +79,18 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { user, remember, redirectTo } = submission.value;
+  const { session, remember, redirectTo } = submission.value;
 
   const userSession = await sessionStorage.getSession(
     request.headers.get("cookie")
   );
 
-  userSession.set("userId", user.id);
+  userSession.set(sessionKey, session.id);
 
   return redirect(safeRedirect(redirectTo, END_POINTS.HOME), {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(userSession, {
-        expires: remember ? getExpirationTime() : undefined,
+        expires: remember ? session.expirationTime : undefined,
       }),
     },
   });

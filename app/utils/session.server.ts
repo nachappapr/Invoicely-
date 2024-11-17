@@ -2,12 +2,14 @@ import { createCookieSessionStorage, redirect } from "@remix-run/node";
 import { combineHeaders } from "./misc";
 
 type SessionData = {
-  userId: string;
+  sessionId: string;
 };
 
 type SessionFlashData = {
-  userId: string;
+  sessionId: string;
 };
+
+export const sessionKey = "sessionId";
 
 export const sessionStorage = createCookieSessionStorage<
   SessionData,
@@ -24,7 +26,7 @@ export const sessionStorage = createCookieSessionStorage<
 
 export async function createUserSession(userInput: string) {
   const userSession = await sessionStorage.getSession();
-  userSession.set("userId", userInput);
+  userSession.set(sessionKey, userInput);
   const cookie = await sessionStorage.commitSession(userSession);
   return new Headers({ "set-cookie": cookie });
 }
@@ -33,11 +35,11 @@ export async function getUserSession(request: Request) {
   const userSession = await sessionStorage.getSession(
     request.headers.get("Cookie")
   );
-  const userId = userSession.get("userId");
+  const sessionId = userSession.get(sessionKey);
   return {
-    userId,
+    sessionId,
     userSession,
-    headers: userId
+    headers: sessionId
       ? new Headers({
           "set-cookie": await sessionStorage.commitSession(userSession),
         })

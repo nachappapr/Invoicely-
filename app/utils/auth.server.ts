@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "./db.server";
-import { getUserSession, sessionStorage } from "./session.server";
+import { getUserSession, sessionKey, sessionStorage } from "./session.server";
 import { redirect } from "@remix-run/node";
 import { END_POINTS } from "~/constants";
 import { safeRedirect } from "remix-utils/safe-redirect";
+import { type Password, type User } from "@prisma/client";
 
 interface CreateUserArgs {
   username: string;
@@ -15,6 +16,14 @@ const SESSION_EXPIRATION_TIME = 1000 * 60 * 60 * 7;
 
 export const logout = async (request: Request, responseInit?: ResponseInit) => {
   const { userSession } = await getUserSession(request);
+  const sessionId = userSession.get(sessionKey);
+
+  if (sessionId) {
+    void prisma.session
+      .deleteMany({ where: { id: sessionId } })
+      .catch(() => console.error("Failed to delete session"));
+  }
+
   throw redirect(safeRedirect(END_POINTS.LOGIN), {
     ...responseInit,
     headers: {
@@ -34,22 +43,25 @@ export const logout = async (request: Request, responseInit?: ResponseInit) => {
  * @throws {Response} - Redirects to the login endpoint if the user is not found.
  */
 export const getUserId = async (request: Request) => {
-  const { userId } = await getUserSession(request);
-  if (!userId) return null;
-  const user = await prisma.user.findFirst({
+  const { sessionId } = await getUserSession(request);
+  if (!sessionId) return null;
+  const session = await prisma.session.findUnique({
+    select: { user: { select: { id: true } } },
     where: {
-      id: userId,
+      id: sessionId,
+      expirationTime: { gt: new Date() },
     },
   });
-  if (!user) {
+  if (!session?.user.id) {
     throw await logout(request);
   }
-  return user.id;
+  return session.user.id;
 };
 
 /**
- * Ensures that the request is made by an anonymous user.
- * If the user is authenticated, they will be redirected to the home page.
+ * Ensures that the request is made by an unauthenticated user.
+ * This function prevents authenticated users from accessing routes
+ * that are intended for unauthenticated users, such as login and signup routes.
  *
  * @param {Request} request - The incoming request object.
  * @throws {Response} Redirects to the home page if the user is authenticated.
@@ -100,7 +112,14 @@ export const requireUserId = async (
 export const requireUser = async (request: Request) => {
   const userId = await requireUserId(request);
   const user = await prisma.user.findFirst({
-    select: { id: true, username: true },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      createdAt: true,
+      UserImage: true,
+    },
     where: {
       id: userId,
     },
@@ -149,9 +168,28 @@ export function genHashPasswordSync(password: string) {
  * @param hashPassword - The hashed password to compare against.
  * @returns A promise that resolves to a boolean indicating whether the passwords match.
  */
-export async function comparePassword(password: string, hashPassword: string) {
-  const isValid = await bcrypt.compare(password, hashPassword);
-  return isValid;
+export async function verifyUserPassword(
+  email: User["email"],
+  hashPassword: Password["hash"]
+) {
+  const userWithPassword = await prisma.user.findFirst({
+    select: { id: true, password: { select: { hash: true } } },
+    where: { email },
+  });
+
+  if (!userWithPassword || !userWithPassword.password) {
+    return null;
+  }
+
+  const isValid = await bcrypt.compare(
+    hashPassword,
+    userWithPassword.password.hash
+  );
+
+  if (!isValid) {
+    return null;
+  }
+  return userWithPassword.id;
 }
 
 /**
@@ -170,17 +208,27 @@ export async function createUser({
   password,
 }: CreateUserArgs) {
   const hashPassword = await genHashPassword(password);
-  const user = await prisma.user.create({
-    select: { id: true },
+  const session = await prisma.session.create({
+    select: { id: true, expirationTime: true },
     data: {
-      username,
-      email,
-      password: {
-        create: { hash: hashPassword },
+      expirationTime: getExpirationTime(),
+      user: {
+        create: {
+          username,
+          email,
+          password: {
+            create: { hash: hashPassword },
+          },
+          roles: {
+            connect: {
+              name: "user",
+            },
+          },
+        },
       },
     },
   });
-  return user;
+  return session;
 }
 
 /**
@@ -195,3 +243,30 @@ export async function findExistingUser({ email }: { email: string }) {
     where: { email },
   });
 }
+
+/**
+ * Logs in a user by verifying their username and password, and creates a session if successful.
+ *
+ * @param {Object} params - The login parameters.
+ * @param {string} params.username - The username of the user.
+ * @param {string} params.password - The password of the user.
+ * @returns {Promise<Object|null>} The created session object containing the session ID and expiration time, or null if login fails.
+ */
+export const login = async ({
+  email,
+  password,
+}: {
+  email: User["email"];
+  password: string;
+}) => {
+  const userId = await verifyUserPassword(email, password);
+  if (!userId) return null;
+  const session = await prisma.session.create({
+    select: { id: true, expirationTime: true },
+    data: {
+      userId,
+      expirationTime: getExpirationTime(),
+    },
+  });
+  return session;
+};

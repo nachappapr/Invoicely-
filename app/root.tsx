@@ -50,8 +50,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
   const user = userId
-    ? await prisma.user.findFirst({
-        select: { id: true, email: true },
+    ? await prisma.user.findFirstOrThrow({
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          roles: {
+            select: {
+              name: true,
+              permissions: {
+                select: {
+                  entity: true,
+                  action: true,
+                  access: true,
+                },
+              },
+            },
+          },
+        },
+
         where: {
           id: userId,
         },
@@ -148,13 +165,14 @@ export default function App() {
     (match) =>
       match.pathname.startsWith("/auth") || match.id === "routes/_index"
   );
+  const username = data.user?.username;
 
   return (
     <AuthenticityTokenProvider token={data.csrfToken}>
       <HoneypotProvider {...data.honeyProps}>
         <AnimatePresence mode="wait" key={useLocation().pathname}>
           <Document theme={theme}>
-            {isAuthPage ? null : <SideNav theme={theme} />}
+            {isAuthPage ? null : <SideNav theme={theme} username={username} />}
             <Toaster />
             {data.toast ? <AlertToast {...data.toast} /> : null}
             {isLoggedInUser ? <LogoutTimer /> : null}

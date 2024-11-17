@@ -1,6 +1,5 @@
 import { Link } from "@remix-run/react";
 import clsx from "clsx";
-import { LogOut, Settings } from "lucide-react";
 import { forwardRef } from "react";
 import SvgLogo from "~/assets/icons/Logo";
 import {
@@ -16,14 +15,7 @@ import { type Theme } from "~/global";
 import userAvatarUrl from "../../assets/image-avatar.jpg";
 import ThemeSwitcher from "../common/ThemeSwitcher";
 import { Avatar, AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { END_POINTS } from "~/constants";
 
 const ListItem = forwardRef<
   React.ElementRef<"a">,
@@ -70,35 +62,13 @@ const UserAvatarButton = forwardRef<
 ));
 UserAvatarButton.displayName = "UserAvatarButton";
 
-const SideNav = ({ theme }: { theme: Theme }) => {
-  const isLoggedIn = true;
-  const renderLogin = () => {
-    return isLoggedIn ? (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <UserAvatarButton imageUrl={userAvatarUrl} fallbackText="NR" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuItem asChild>
-            <Link to="/settings" className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ) : (
-      <Button
-        variant="secondary"
-        className="bg-purple-1000 text-white hover:bg-purple-1050"
-      >
-        Log in
-      </Button>
+const SideNav = ({ theme, username }: { theme: Theme; username?: string }) => {
+  const renderUserAvatar = () => {
+    const userProfilePageUrl = `${END_POINTS.USERS}/${username}`;
+    return (
+      <Link to={userProfilePageUrl}>
+        <UserAvatarButton imageUrl={userAvatarUrl} fallbackText="NR" />;
+      </Link>
     );
   };
 
@@ -196,7 +166,7 @@ const SideNav = ({ theme }: { theme: Theme }) => {
         </NavigationMenu>
         <div className="flex items-center space-x-4">
           <ThemeSwitcher userPreference={theme} />
-          {renderLogin()}
+          {renderUserAvatar()}
         </div>
       </div>
     </header>

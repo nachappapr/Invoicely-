@@ -1,7 +1,7 @@
 import { getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 
 import {
   Form,
@@ -14,22 +14,17 @@ import { safeRedirect } from "remix-utils/safe-redirect";
 import { z } from "zod";
 import fallbackImgSrc from "~/assets/login-background.jpg";
 import AnimatedLoader from "~/components/common/AnimatedLoader";
-import LayoutContainer from "~/components/layout/LayoutContainer";
+import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
 import { ConformCheckboxField } from "~/components/common/ConformCheckboxField";
 import FormFieldErrorMessage from "~/components/common/FormFieldErrorMessage";
-import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
 import StyledInputField from "~/components/common/StyledInputField";
+import LayoutContainer from "~/components/layout/LayoutContainer";
 import { Button } from "~/components/ui/button";
 import { END_POINTS } from "~/constants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
-import {
-  comparePassword,
-  getExpirationTime,
-  requireAnonymous,
-} from "~/utils/auth.server";
-import { prisma } from "~/utils/db.server";
+import { login, requireAnonymous } from "~/utils/auth.server";
 import { SignInSchema } from "~/utils/schema";
-import { sessionStorage } from "~/utils/session.server";
+import { sessionKey, sessionStorage } from "~/utils/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // redirect to home if user is already logged in
@@ -52,32 +47,16 @@ export async function action({ request }: ActionFunctionArgs) {
   const submission = await parseWithZod(formData, {
     schema: () =>
       SignInSchema.transform(async (data, ctx) => {
-        const user = await prisma.user.findUnique({
-          select: { id: true, password: { select: { hash: true } } },
-          where: { email: data.email },
-        });
-        if (!user) {
+        const session = await login(data);
+        if (!session) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: "Invalid username or password",
           });
           return z.NEVER;
         }
-        if (user.password) {
-          const isValidPassword = await comparePassword(
-            data.password,
-            user.password?.hash
-          );
 
-          if (!isValidPassword) {
-            ctx.addIssue({
-              code: z.ZodIssueCode["custom"],
-              message: "Invalid username or password",
-            });
-            return z.NEVER;
-          }
-        }
-        return { ...data, user: { id: user.id } };
+        return { ...data, session };
       }),
     async: true,
   });
@@ -91,18 +70,18 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { user, remember, redirectTo } = submission.value;
+  const { session, remember, redirectTo } = submission.value;
 
   const userSession = await sessionStorage.getSession(
     request.headers.get("cookie")
   );
 
-  userSession.set("userId", user.id);
+  userSession.set(sessionKey, session.id);
 
   return redirect(safeRedirect(redirectTo, END_POINTS.HOME), {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(userSession, {
-        expires: remember ? getExpirationTime() : undefined,
+        expires: remember ? session.expirationTime : undefined,
       }),
     },
   });
