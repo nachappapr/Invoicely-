@@ -5,6 +5,8 @@ const schema = z.object({
   HONEYPOT_SECRET: z.string(),
   SESSION_SECRET: z.string().optional(),
   TOAST_SECRET: z.string(),
+  RESEND_API_KEY: z.string(),
+  VERIFY_EMAIL_SECRET: z.string(),
 });
 
 declare global {

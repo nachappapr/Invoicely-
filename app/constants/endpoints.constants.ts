@@ -5,4 +5,5 @@ export const END_POINTS = {
   INVOICE: "/invoice",
   USERS: "/users",
   SETTINGS: "/settings/profile",
+  ONBOARDING: "/auth/onboarding",
 } as const;

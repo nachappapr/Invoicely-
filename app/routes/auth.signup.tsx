@@ -6,32 +6,24 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  useActionData,
-  useNavigation,
-  useSearchParams,
-} from "@remix-run/react";
-import { safeRedirect } from "remix-utils/safe-redirect";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
+
 import { z } from "zod";
 import fallbackImgSrc from "~/assets/login-background.jpg";
 import AnimatedLoader from "~/components/common/AnimatedLoader";
-import CheckboxLabelWrapper from "~/components/common/CheckboxLabelWrapper";
-import { ConformCheckboxField } from "~/components/common/ConformCheckboxField";
 import FormFieldErrorMessage from "~/components/common/FormFieldErrorMessage";
 import StyledInputField from "~/components/common/StyledInputField";
 import LayoutContainer from "~/components/layout/LayoutContainer";
 import { Button } from "~/components/ui/button";
 import { END_POINTS } from "~/constants";
 import useIsFormSubmitting from "~/hooks/useIsFormSubmitting";
+import { findExistingUser, requireAnonymous } from "~/utils/auth.server";
+import { VerifyEmailSchema } from "~/utils/schema";
+import { sendEmail } from "~/utils/sendEmail.server";
 import {
-  createUser,
-  findExistingUser,
-  requireAnonymous,
-} from "~/utils/auth.server";
-import { SignUpSchema } from "~/utils/schema";
-import { sessionKey, sessionStorage } from "~/utils/session.server";
+  onBoardingSessionKey,
+  verifySesssionStorage,
+} from "~/utils/verifyEmail.session";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // redirect to home if user is already logged in
@@ -53,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: () =>
-      SignUpSchema.superRefine(async (data, ctx) => {
+      VerifyEmailSchema.superRefine(async (data, ctx) => {
         const existingUser = await findExistingUser({ email: data.email });
         if (existingUser) {
           ctx.addIssue({
@@ -62,16 +54,9 @@ export async function action({ request }: ActionFunctionArgs) {
           });
           return z.NEVER;
         }
-      }).transform(async (data) => {
-        const { email, password, username } = data;
-        const session = await createUser({ username, email, password });
-        return { ...data, session };
       }),
     async: true,
   });
-
-  // delete password off the payload that is sent to the client
-  delete submission.payload.password;
 
   if (submission.status !== "success") {
     return json({ status: "error", submission: submission.reply() } as const, {
@@ -79,39 +64,52 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { session, remember, redirectTo } = submission.value;
-
-  const userSession = await sessionStorage.getSession(
-    request.headers.get("cookie")
-  );
-
-  userSession.set(sessionKey, session.id);
-
-  return redirect(safeRedirect(redirectTo, END_POINTS.HOME), {
-    headers: {
-      "Set-Cookie": await sessionStorage.commitSession(userSession, {
-        expires: remember ? session.expirationTime : undefined,
-      }),
-    },
+  const response = await sendEmail({
+    to: submission.value.email,
+    subject: "Welcome to Invoice!",
+    html: `<p>Click <a href="http://localhost:3000/auth/signup">here</a> to sign up.</p>`,
   });
+
+  if (response.status === "success") {
+    const { email } = submission.value;
+
+    const verifySession = await verifySesssionStorage.getSession(
+      request.headers.get("cookie")
+    );
+
+    verifySession.set(onBoardingSessionKey, email);
+
+    return redirect(END_POINTS.ONBOARDING, {
+      headers: {
+        "Set-Cookie": await verifySesssionStorage.commitSession(verifySession),
+      },
+    });
+  } else {
+    return json(
+      {
+        status: "error",
+        submission: submission.reply({
+          formErrors: [response.error],
+        }),
+      } as const,
+      {
+        status: 500,
+      }
+    );
+  }
 }
 
 const SignUpPage = () => {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isPending = useIsFormSubmitting();
-  const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo");
 
   const [form, fields] = useForm({
-    id: "signup",
-    constraint: getZodConstraint(SignUpSchema),
+    id: "verify-email",
+    constraint: getZodConstraint(VerifyEmailSchema),
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: SignUpSchema });
-    },
-    defaultValue: {
-      redirectTo,
+      return parseWithZod(formData, { schema: VerifyEmailSchema });
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
@@ -141,21 +139,14 @@ const SignUpPage = () => {
           <div className="mb-4">
             <h4 className="secondary-heading text-center flex gap-1 items-center justify-center mb-2">
               <span className="bg-[linear-gradient(to_right,#0C0E16,#0C0E1660)] dark:bg-[linear-gradient(to_right,#F8F8FB,#F8F8FB60)] !text-transparent bg-clip-text">
-                Sign in to
+                Let's start your
               </span>
               <span className=" bg-[linear-gradient(to_right,#7C5DFA,#7C5DFA80)] !text-transparent bg-clip-text">
-                Invoicely
+                journey!
               </span>
             </h4>
             <p className="max-w-sm text-center mx-auto text-body-two text-light !font-[500] flex flex-col justify-center leading-4">
-              <span>
-                Welcome to Invoicely! We're thrilled to have you join our
-                community.
-              </span>
-              <span>
-                Please fill in your details to create your account and start
-                managing your invoices with ease and efficiency.
-              </span>
+              <span>Please enter your email.</span>
             </p>
           </div>
           <Form
@@ -166,22 +157,6 @@ const SignUpPage = () => {
             className="flex flex-col gap-4"
           >
             <StyledInputField
-              label="username"
-              htmlFor={fields.username.id}
-              error={fields.username.errors}
-              {...getInputProps(fields.username, {
-                type: "text",
-              })}
-            />
-            <StyledInputField
-              label="name"
-              htmlFor={fields.name.id}
-              error={fields.name.errors}
-              {...getInputProps(fields.name, {
-                type: "text",
-              })}
-            />
-            <StyledInputField
               label="email"
               htmlFor={fields.email.id}
               error={fields.email.errors}
@@ -189,54 +164,17 @@ const SignUpPage = () => {
                 type: "email",
               })}
             />
-            <StyledInputField
-              label="password"
-              htmlFor={fields.password.id}
-              error={fields.password.errors}
-              {...getInputProps(fields.password, {
-                type: "password",
-              })}
-            />
-            <StyledInputField
-              label="confirm password"
-              htmlFor={fields.confirmPassword.id}
-              error={fields.confirmPassword.errors}
-              {...getInputProps(fields.confirmPassword, {
-                type: "password",
-              })}
-            />
-            <CheckboxLabelWrapper
-              label="Accept terms and conditions"
-              privacyText="You agree to our Terms of Service and Privacy Policy."
-              htmlFor={fields.agreeToTermsOfServiceAndPrivacyPolicy.id}
-            >
-              <ConformCheckboxField
-                meta={fields.agreeToTermsOfServiceAndPrivacyPolicy}
-              />
-            </CheckboxLabelWrapper>
-            <FormFieldErrorMessage
-              errorId={fields.agreeToTermsOfServiceAndPrivacyPolicy.errorId}
-              message={fields.agreeToTermsOfServiceAndPrivacyPolicy.errors}
-            />
-
-            <CheckboxLabelWrapper
-              label="Remember me"
-              htmlFor={fields.remember.id}
-            >
-              <ConformCheckboxField meta={fields.remember} />
-            </CheckboxLabelWrapper>
 
             <FormFieldErrorMessage
               errorId={form.errorId}
               message={signUpErrors}
             />
-            <input {...getInputProps(fields.redirectTo, { type: "hidden" })} />
             <Button
               variant="invoice-primary"
               type="submit"
               disabled={isPending}
             >
-              {isPending ? <AnimatedLoader /> : "Sign up"}
+              {isPending ? <AnimatedLoader /> : "Submit"}
             </Button>
           </Form>
         </div>

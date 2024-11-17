@@ -73,6 +73,10 @@ export const SignInSchema = z.object({
   remember: z.boolean().optional(),
 });
 
+export const VerifyEmailSchema = z.object({
+  email: z.string({ required_error: "Can't be empty" }).email("Invalid email"),
+});
+
 export const SignUpSchema = z
   .object({
     username: UsernameSchema,
